@@ -1,0 +1,1568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+<title>Beth's Beautiful Garden</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fredoka:wght@500;600&display=swap">
+<style>
+/* Layout concept: one sunny top-down yard map with a care panel beside it; greenhouse, guide and journal as sibling tabs.
+   Color: leaf green and lawn for the world, raspberry as the single UI accent, plum ink. Type: Fredoka (friendly display) + DM Sans (body). */
+:root{
+  --bg:#E9F0EA;--panel:#FFFFFF;--panel2:#F1F6F2;--ink:#241C2E;--muted:#5F5A6D;--line:#CCD8CF;
+  --accent:#C2315B;--accentInk:#FFFFFF;--leaf:#2F7D45;--good:#23783F;--bad:#C0392B;--warn:#9A6212;--water:#2878B8;
+  --lawn:#A9D08C;--lawn2:#9CC67E;--patio:#CFC8D6;--patio2:#BEB6C8;--deck:#E3D0AE;--pool:#6CC4D8;--poolEdge:#EAF8FB;
+  --roof:#8B4A66;--roof2:#74394F;--wall:#E8E2DA;--soil:#7A5236;--soil2:#68432B;--bed:#8B6140;--glass:#CDEBF0;
+  --dusk:#2A2B6A;--shadow:rgba(30,20,40,.18);--pot:#C8643B;--potd:#A44F2D;--zl:#2C4A35;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101A15;--panel:#1A2820;--panel2:#22342A;--ink:#EAF1EB;--muted:#A6B5AB;--line:#2F4538;
+  --accent:#F0668F;--accentInk:#26121A;--leaf:#6CC384;--good:#6CC384;--bad:#F2796B;--warn:#E3B04B;--water:#58B0F0;
+  --lawn:#2F5A3A;--lawn2:#2A5035;--patio:#4A4458;--patio2:#413C4E;--deck:#6A5A44;--pool:#2F8CA3;--poolEdge:#BFE5EE;
+  --roof:#7A3E58;--roof2:#64304A;--wall:#50484A;--soil:#4C3322;--soil2:#3F2A1C;--bed:#5C402B;--glass:#35606A;
+  --dusk:#0B0B30;--shadow:rgba(0,0,0,.4);--pot:#B5593A;--potd:#8F4429;--zl:#CFE3D3;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101A15;--panel:#1A2820;--panel2:#22342A;--ink:#EAF1EB;--muted:#A6B5AB;--line:#2F4538;
+  --accent:#F0668F;--accentInk:#26121A;--leaf:#6CC384;--good:#6CC384;--bad:#F2796B;--warn:#E3B04B;--water:#58B0F0;
+  --lawn:#2F5A3A;--lawn2:#2A5035;--patio:#4A4458;--patio2:#413C4E;--deck:#6A5A44;--pool:#2F8CA3;--poolEdge:#BFE5EE;
+  --roof:#7A3E58;--roof2:#64304A;--wall:#50484A;--soil:#4C3322;--soil2:#3F2A1C;--bed:#5C402B;--glass:#35606A;
+  --dusk:#0B0B30;--shadow:rgba(0,0,0,.4);--pot:#B5593A;--potd:#8F4429;--zl:#CFE3D3;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;line-height:1.45;padding-inline:16px;padding-block:14px}
+.wrap{max-width:1280px;margin-inline:auto;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:'Fredoka',ui-rounded,system-ui,sans-serif;font-weight:600;margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:clamp(1.6rem,4.4vw,2.3rem);line-height:1.05}
+h2{font-size:1.25rem}h3{font-size:1.05rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,.slot:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between}
+.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sub{margin:0;color:var(--muted);font-size:13.5px}
+.stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 14px;display:flex;flex-direction:column;min-width:84px}
+.stat .lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:'Fredoka',system-ui,sans-serif;font-size:1.35rem;font-variant-numeric:tabular-nums;line-height:1.15}
+.stat.score{background:var(--accent);border-color:var(--accent);color:var(--accentInk)}
+.stat.score .lbl{color:inherit;opacity:.85}
+.stat small{font-size:11.5px;opacity:.85}
+.bar2{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 16px;font-weight:500}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ctl{display:flex;flex-wrap:wrap;gap:6px}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:9px 14px;font-weight:500;line-height:1.1;display:inline-flex;gap:8px;align-items:center;justify-content:center;transition:transform .08s}
+.btn:hover{border-color:var(--ink)}.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accentInk);font-weight:700}
+.btn.water{background:var(--water);border-color:var(--water);color:#fff;font-weight:700}
+.btn.green{background:var(--leaf);border-color:var(--leaf);color:var(--bg);font-weight:700}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:10px}
+.btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.danger{color:var(--bad)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;min-width:0}
+.garden{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:14px;align-items:start}
+.mapcard{padding:10px;display:flex;flex-direction:column;gap:8px}
+.maptools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.needs{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
+.chip.good{color:var(--good);border-color:currentColor}.chip.bad{color:var(--bad);border-color:currentColor}.chip.warn{color:var(--warn);border-color:currentColor}.chip.water{color:var(--water);border-color:currentColor}
+svg#yard{display:block;width:100%;height:auto;border-radius:12px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.panel{position:sticky;top:12px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 24px);overflow:auto}
+.panel h2{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.pmeta{display:flex;flex-wrap:wrap;gap:6px}
+.pcard{display:flex;gap:12px;align-items:center}
+.pcard svg{flex:none;background:var(--panel2);border-radius:14px}
+.say{margin:0;padding:8px 12px;border-radius:12px;background:var(--panel2);font-size:14px}
+.say.good{color:var(--good)}.say.bad{color:var(--bad)}.say.warn{color:var(--warn)}
+.meters{display:flex;flex-direction:column;gap:7px}
+.meter{display:grid;grid-template-columns:58px minmax(0,1fr) 38px;gap:8px;align-items:center;font-size:12.5px;color:var(--muted)}
+.meter b{color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.bar{position:relative;height:9px;border-radius:99px;background:var(--panel2);border:1px solid var(--line)}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--leaf);transition:width .4s}
+.bar.w i{background:var(--water)}.bar.f i{background:#C98A1B}.bar.s i{background:var(--leaf)}.bar.fr i{background:var(--accent)}
+.bar .win{position:absolute;left:51.7%;width:17.3%;top:-3px;bottom:-3px;border:2px solid var(--ink);border-radius:5px;opacity:.55}
+.needs-list{display:grid;gap:4px;margin:0;padding:0;list-style:none;font-size:13.5px}
+.needs-list li{display:flex;gap:8px;align-items:center}
+.ok{color:var(--good);font-weight:700}.no{color:var(--bad);font-weight:700}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.actions .wide{grid-column:1/-1}
+.hint{color:var(--muted);font-size:13px;margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.dot{width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font:700 10px/1 'DM Sans',sans-serif}
+.view[hidden]{display:none!important}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.seedslot{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.seedbtn{width:100%;display:flex;gap:12px;align-items:center;border:2px dashed var(--line);background:var(--panel2);border-radius:16px;padding:12px;text-align:left}
+.seedbtn:hover{border-color:var(--accent)}
+.seedbtn svg{flex:none}
+.result{border-radius:16px;padding:14px;background:var(--panel2);display:flex;flex-direction:column;gap:8px}
+.result.fail{color:var(--warn)}
+.hybrid-name{font-family:'Fredoka',system-ui,sans-serif;font-size:1.35rem;line-height:1.1}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.pc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;gap:10px;min-width:0}
+.pc svg{flex:none;background:var(--panel2);border-radius:10px}
+.pc .t{display:flex;flex-direction:column;gap:3px;min-width:0}
+.pc b{overflow-wrap:anywhere}
+.pc .m{font-size:12.5px;color:var(--muted)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+input[type=search]{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 12px;min-width:0;flex:1 1 180px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.fert{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:10px 12px}
+.fert:hover{border-color:var(--ink)}
+.fert i{flex:none;width:14px;height:14px;border-radius:4px;margin-top:3px}
+.fert small{display:block;color:var(--muted);font-size:12.5px}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.log li{padding:8px 2px;border-bottom:1px solid var(--line);display:flex;gap:10px;font-size:14px}
+.log li small{color:var(--muted);flex:none;width:52px;font-variant-numeric:tabular-nums}
+.log .good{color:var(--good)}.log .bad{color:var(--bad)}
+.modal{position:fixed;inset:0;background:rgba(12,14,18,.58);display:grid;place-items:end center;z-index:50}
+.modal[hidden]{display:none}
+.sheet{width:min(760px,100%);max-height:90vh;background:var(--panel);border-radius:20px 20px 0 0;display:flex;flex-direction:column;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));gap:10px;min-height:0}
+@media (min-width:700px){.modal{place-items:center}.sheet{border-radius:20px;max-height:86vh}}
+.sheet header{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips .btn{padding:5px 11px;font-size:13px;border-radius:999px}
+.list{overflow:auto;min-height:120px;flex:1}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line)}
+.row svg{background:var(--panel2);border-radius:10px}
+.row .t{display:flex;flex-direction:column;gap:3px;min-width:0}
+.row .t b{overflow-wrap:anywhere}
+.row .m{font-size:12.5px;color:var(--muted)}
+.badges{display:flex;flex-wrap:wrap;gap:4px}
+.badge{font-size:11.5px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);background:var(--panel2)}
+.badge.bad{color:var(--bad);border-color:currentColor}.badge.warn{color:var(--warn);border-color:currentColor}.badge.good{color:var(--good);border-color:currentColor}
+.check{display:inline-flex;gap:8px;align-items:center;font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);max-width:min(560px,calc(100vw - 32px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.bad{background:var(--bad);color:#fff}.toast.good{background:var(--good);color:var(--bg)}
+/* yard */
+.lawn{fill:var(--lawn)}.lawn2{fill:var(--lawn2)}.patio{fill:var(--patio);stroke:var(--patio2);stroke-width:2}.pave{stroke:var(--patio2);stroke-width:1.5}
+.deck{fill:var(--deck)}.plank{stroke:rgba(0,0,0,.12);stroke-width:1.2}.pool{fill:var(--pool);stroke:var(--poolEdge);stroke-width:5}
+.roof{fill:var(--roof)}.roof2{fill:var(--roof2)}.wall{fill:var(--wall)}.glass{fill:var(--glass);stroke:var(--wall);stroke-width:3}
+.bedfill{fill:var(--bed)}.soilfill{fill:var(--soil)}.soil{fill:var(--soil2)}.zl{font:600 12px 'DM Sans',sans-serif;fill:var(--zl);opacity:.82;text-anchor:middle;letter-spacing:.04em}
+.potfill{fill:var(--pot)}.potd{fill:var(--potd)}.shadow{fill:#000;opacity:.16}.dusk{fill:var(--dusk);opacity:0;pointer-events:none;transition:opacity 3s}
+[data-tod="eve"] .dusk{opacity:.2}
+.slot{cursor:pointer;outline:none}.slot .hit{fill:transparent}
+.slot .ring{fill:none;stroke:var(--ink);stroke-opacity:.55;stroke-width:2;stroke-dasharray:4 4;opacity:0;transition:opacity .15s}
+.slot:hover .ring,.slot:focus-visible .ring{opacity:1}
+.slot.sel .ring{opacity:1;stroke:var(--accent);stroke-opacity:1;stroke-width:3.5;stroke-dasharray:none}
+.slot .plus{stroke:var(--ink);stroke-opacity:.4;stroke-width:2.5;stroke-linecap:round}
+.pip circle{stroke:#fff;stroke-width:1.5}.pip text{font:700 9px 'DM Sans',sans-serif;fill:#fff;text-anchor:middle}
+.plwrap{transform-box:fill-box;transform-origin:50% 100%}
+.thump .plwrap{animation:thump .45s ease}
+@keyframes thump{35%{transform:scale(1.14,.9)}70%{transform:scale(.96,1.08)}}
+.pop{font:700 17px 'Fredoka',system-ui,sans-serif;text-anchor:middle;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round;animation:rise 1.5s ease-out forwards;pointer-events:none}
+.pop.pos{fill:#1D7A3A}.pop.neg{fill:#C0392B}
+@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-40px);opacity:0}}
+#beth{transition:transform .8s cubic-bezier(.4,.1,.3,1);pointer-events:none}
+#beth .face{transition:transform .2s}
+.walk .bob{animation:bob .28s infinite alternate ease-in-out}
+@keyframes bob{to{transform:translateY(-3px)}}
+.act .bob{animation:hop .45s ease}
+@keyframes hop{40%{transform:translateY(-7px) rotate(-3deg)}}
+.rain{opacity:0;transition:opacity .6s;pointer-events:none}.raining .rain{opacity:.8}
+.rain line{stroke:#9CD3F2;stroke-width:2;stroke-linecap:round;animation:fall .7s linear infinite}
+@keyframes fall{from{transform:translateY(-30px)}to{transform:translateY(40px)}}
+@media (max-width:920px){.garden{grid-template-columns:minmax(0,1fr)}.panel{position:static;max-height:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="brand">
+    <h1>Beth's Beautiful Garden</h1>
+    <p class="sub">Day <b id="day">1</b>, <span id="tod">morning</span> · <span id="weather">Dry and bright</span></p>
+  </div>
+  <div class="stats">
+    <div class="stat score"><span class="lbl">Points</span><b id="score">0</b><small id="rank">Seedling</small></div>
+    <div class="stat"><span class="lbl">Thriving</span><b id="cHappy">0</b><small id="cAlive">0 planted</small></div>
+    <div class="stat"><span class="lbl">Species grown</span><b id="cDisc">0</b><small id="cDiscOf"></small></div>
+  </div>
+</header>
+
+<div class="bar2">
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" data-tab="garden" aria-selected="true">Garden</button>
+    <button class="tab" role="tab" data-tab="green" aria-selected="false">Greenhouse</button>
+    <button class="tab" role="tab" data-tab="guide" aria-selected="false">Plant guide</button>
+    <button class="tab" role="tab" data-tab="log" aria-selected="false">Journal</button>
+  </div>
+  <div class="ctl">
+    <button class="btn sm" id="bPause">Pause</button>
+    <button class="btn sm" id="bSpeed">1× speed</button>
+    <button class="btn sm danger" id="bReset">New garden</button>
+  </div>
+</div>
+
+<section class="view" id="view-garden">
+ <div class="garden">
+  <div class="card mapcard">
+    <div class="maptools">
+      <div class="needs" id="needs"></div>
+      <button class="btn sm primary" id="bNext">Next chore</button>
+    </div>
+<svg id="yard" viewBox="0 0 1000 720" role="img" aria-label="Top-down map of Beth's yard with house, patio, pool, flower beds, tree gardens and an open plot" data-tod="day">
+  <rect class="lawn" width="1000" height="720"/>
+  <g class="lawn2" opacity=".5"><rect x="0" y="330" width="1000" height="14"/><rect x="0" y="560" width="340" height="12"/><rect x="0" y="700" width="1000" height="20"/></g>
+  <!-- house -->
+  <rect class="wall" x="30" y="20" width="420" height="150" rx="6"/>
+  <path class="roof" d="M24 24 H456 V100 H24Z"/><path class="roof2" d="M24 100 H456 V166 H24Z"/>
+  <rect class="glass" x="70" y="118" width="64" height="40" rx="4"/><rect class="glass" x="190" y="118" width="64" height="40" rx="4"/><rect class="glass" x="310" y="118" width="64" height="40" rx="4"/>
+  <text class="zl" x="240" y="72" style="fill:#fff;opacity:.8">Beth's house</text>
+  <!-- patio -->
+  <rect class="patio" x="30" y="170" width="420" height="150" rx="8"/>
+  <g class="pave"><path d="M30 220H450M30 270H450M135 170V320M240 170V320M345 170V320"/></g>
+  <path d="M40 178H440" stroke="#7A5A3A" stroke-width="4" stroke-linecap="round"/>
+  <text class="zl" x="240" y="311">Patio</text>
+  <!-- flower beds -->
+  <g><rect class="bedfill" x="465" y="107" width="195" height="70" rx="14"/></g>
+  <text class="zl" x="562" y="102">Patio bed</text>
+  <!-- pool deck -->
+  <rect class="deck" x="680" y="14" width="315" height="310" rx="16"/>
+  <g class="plank"><path d="M680 40H995M680 66H995M680 220H995M680 246H995M680 272H995M680 298H995"/></g>
+  <rect class="pool" x="738" y="92" width="204" height="100" rx="22"/>
+  <path d="M760 124q16-10 32 0t32 0 32 0 32 0 20 0M760 152q16-10 32 0t32 0 32 0 32 0 20 0" stroke="#fff" stroke-opacity=".55" stroke-width="3" fill="none"/>
+  
+  <text class="zl" x="840" y="36">Pool deck</text>
+  <!-- tree gardens -->
+  <g><circle class="soilfill" cx="95" cy="455" r="82"/></g>
+  <g id="bigTrees">
+   <rect x="91" y="440" width="8" height="30" rx="3" fill="#6E4A2A"/><circle cx="95" cy="448" r="26" fill="#2E6A3C"/><circle cx="80" cy="460" r="18" fill="#3A7D47"/><circle cx="111" cy="458" r="19" fill="#3A7D47"/><circle cx="96" cy="436" r="15" fill="#4E9A57"/>
+  </g>
+  <text class="zl" x="95" y="378">Oak garden</text>
+  <!-- plots -->
+  <rect class="soilfill" x="535" y="345" width="450" height="350" rx="18"/>
+  <rect class="soilfill" x="345" y="335" width="170" height="235" rx="18"/>
+  <text class="zl" x="760" y="338" style="fill:var(--zl)">Open plot</text><text class="zl" x="430" y="328">Lawn plot</text>
+  <!-- greenhouse -->
+  <g id="ghBuilding" style="cursor:pointer" tabindex="0" role="button" aria-label="Open the greenhouse">
+    <rect x="352" y="588" width="156" height="102" rx="8" fill="var(--glass)" stroke="var(--wall)" stroke-width="5"/>
+    <path d="M352 588L430 556L508 588" fill="var(--glass)" stroke="var(--wall)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M404 588V690M456 588V690M352 640H508" stroke="var(--wall)" stroke-width="3"/>
+    <rect x="368" y="650" width="124" height="14" rx="3" fill="#8B6140"/>
+    <circle cx="392" cy="644" r="7" fill="#E88AA8"/><circle cx="430" cy="644" r="7" fill="#F2C230"/><circle cx="468" cy="644" r="7" fill="#7C4DBD"/>
+    <text class="zl" x="430" y="682">Greenhouse bench</text>
+  </g>
+  <g id="slotsLayer"></g>
+  <g id="bethLayer">
+   <g id="beth" style="transform:translate(250px,332px)">
+    <g transform="scale(1.2)"><g class="bob" id="bethBody">
+     <ellipse cx="0" cy="2" rx="17" ry="5" class="shadow"/>
+     <rect x="-9" y="-8" width="7" height="10" rx="3" fill="#5B4636"/><rect x="2" y="-8" width="7" height="10" rx="3" fill="#5B4636"/>
+     <rect x="-9" y="-24" width="8" height="18" rx="3" fill="#3E7C86"/><rect x="1" y="-24" width="8" height="18" rx="3" fill="#3E7C86"/>
+     <path d="M-8 -52 Q-18 -42 -14 -30" stroke="#8A3B2A" stroke-width="5" stroke-linecap="round" fill="none"/>
+     <rect x="-12" y="-46" width="24" height="26" rx="8" fill="#F2C94C"/>
+     <path d="M-8 -35h16v15a4 4 0 0 1-4 4h-8a4 4 0 0 1-4-4z" fill="#3E7C86"/>
+     <rect x="-8" y="-46" width="3" height="12" fill="#3E7C86"/><rect x="5" y="-46" width="3" height="12" fill="#3E7C86"/>
+     <circle cx="0" cy="-27" r="2.6" fill="#C2315B"/><circle cx="0" cy="-27" r="1" fill="#F2C230"/>
+     <rect x="-18" y="-44" width="6" height="19" rx="3" fill="#F2C94C"/><rect x="12" y="-44" width="6" height="19" rx="3" fill="#F2C94C"/>
+     <circle cx="-15" cy="-23" r="4.2" fill="#7CBF6E"/><circle cx="15" cy="-23" r="4.2" fill="#7CBF6E"/>
+     <g id="can"><path d="M17 -26h9l3 8h-12z" fill="#2F8F9A"/><path d="M29 -22l7 -5" stroke="#2F8F9A" stroke-width="2.4" stroke-linecap="round"/><path d="M19 -26q4 -6 8 0" stroke="#2F8F9A" stroke-width="1.8" fill="none"/></g>
+     <circle cx="0" cy="-57" r="11" fill="#E2AE86"/>
+     <path d="M-11 -57Q-12 -68 0 -68Q12 -68 11 -57Q8 -63 0 -63Q-8 -63 -11 -57Z" fill="#8A3B2A"/>
+     <circle cx="-4" cy="-56" r="1.4" fill="#3A2A22"/><circle cx="4" cy="-56" r="1.4" fill="#3A2A22"/>
+     <circle cx="-7" cy="-53" r="2" fill="#E98C86" opacity=".6"/><circle cx="7" cy="-53" r="2" fill="#E98C86" opacity=".6"/>
+     <path d="M-3.5 -52Q0 -49 3.5 -52" stroke="#8A3B2A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+     <ellipse cx="0" cy="-65" rx="22" ry="6.5" fill="#E8C873"/><path d="M-11 -65Q-11 -79 0 -79Q11 -79 11 -65Z" fill="#EDD28A"/><rect x="-11" y="-69" width="22" height="4.5" fill="#C2315B"/>
+    </g></g>
+   </g>
+  </g>
+  <g class="rain" id="rain"></g>
+  <rect class="dusk" width="1000" height="720"/>
+  <g id="floatLayer"></g>
+</svg>
+    <div class="legend" aria-label="Map legend">
+      <span><i class="dot" style="background:#2878B8">W</i>Needs water</span>
+      <span><i class="dot" style="background:#C98A1B">F</i>Needs food</span>
+      <span><i class="dot" style="background:#C0392B">T</i>Overgrown, trim</span>
+      <span><i class="dot" style="background:#C2315B">!</i>Struggling</span>
+      <span>Shiny fruit is ready to pick</span>
+    </div>
+  </div>
+  <aside class="card panel" id="panel" aria-live="polite"></aside>
+ </div>
+</section>
+
+<section class="view card" id="view-green" hidden>
+  <h2>Greenhouse bench</h2>
+  <p class="hint" style="margin:4px 0 14px">Pick two different seeds and mix them. A good match grows into a hybrid with traits from both parents and a silly name. Each new hybrid earns propagation points, and you can plant it like any other seed.</p>
+  <div class="split">
+    <div class="seedslot"><h3>Parent A</h3><button class="seedbtn" id="ghA"></button></div>
+    <div class="seedslot"><h3>Parent B</h3><button class="seedbtn" id="ghB"></button></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0"><button class="btn primary" id="ghMix">Mix the seeds</button><button class="btn" id="ghClear">Clear bench</button></div>
+  <div id="ghResult" class="result" hidden></div>
+  <h3 style="margin:20px 0 8px">Your hybrids <span class="chip" id="ghCount">0</span></h3>
+  <div class="pgrid" id="ghList"></div>
+</section>
+
+<section class="view card" id="view-guide" hidden>
+  <h2>Plant guide</h2>
+  <p class="hint" style="margin:4px 0 12px">Every plant needs the right light, the right spot and the right food. Fruit rots if you leave it, and neighbors that clash will not both survive.</p>
+  <div class="fgrid" id="fertGrid" style="margin-bottom:14px"></div>
+  <div id="gHost"></div>
+</section>
+
+<section class="view card" id="view-log" hidden>
+  <h2>Journal</h2>
+  <div class="needs" style="margin:8px 0 12px" id="statChips"></div>
+  <ul class="log" id="logList"></ul>
+</section>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <header><div><h2 id="mTitle">Choose</h2><p class="hint" id="mSub"></p></div><button class="btn sm" id="mClose">Close</button></header>
+    <div id="mBody" style="display:flex;flex-direction:column;gap:10px;min-height:0;flex:1"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+// Name|Category|Sun(u=full,p=part,h=shade)|Site(g=ground,p=pot,h=hanging)|BloomColor|Flags(f:fruitColor, a=acid lover)
+// Categories: T tree, S shrub, F flower, H herb, V vegetable, N vine, C succulent, G grass/fern/foliage, U bulb
+const RAW1 = `
+Apple|T|u|g|w|f:r
+Pear|T|u|g|w|f:y
+Peach|T|u|g|p|f:a
+Plum|T|u|g|w|f:v
+Sweet Cherry|T|u|g|w|f:r
+Fig|T|u|gp|g|f:v
+Lemon|T|u|gp|w|f:y
+Orange|T|u|gp|w|f:o
+Lime|T|u|gp|w|f:l
+Pomegranate|T|u|gp|o|f:r
+Persimmon|T|u|g|y|f:o
+Apricot|T|u|g|p|f:a
+Mulberry|T|u|g|g|f:v
+Pecan|T|u|g|g|f:n
+Black Walnut|T|u|g|g|f:n
+Avocado|T|u|g|g|f:g
+Loquat|T|up|g|w|f:o
+Date Palm|T|u|g|g|f:n
+Olive|T|u|gp|s|f:g
+Hawthorn|T|u|g|w|f:r
+Serviceberry|T|up|g|w|f:v
+Pawpaw|T|p|g|n|f:g
+Crape Myrtle|T|u|gp|m|
+Southern Magnolia|T|up|g|w|
+Dogwood|T|ph|g|w|
+Redbud|T|up|g|m|
+Japanese Maple|T|ph|gp|r|
+Sugar Maple|T|up|g|o|
+Red Maple|T|up|g|r|
+Live Oak|T|up|g|g|
+White Oak|T|u|g|g|
+Weeping Willow|T|u|g|g|
+River Birch|T|up|g|g|
+Bald Cypress|T|up|g|n|
+Ginkgo|T|u|g|y|
+Sweetgum|T|u|g|o|
+Tulip Poplar|T|u|g|y|
+Sassafras|T|up|g|y|
+Eastern White Pine|T|u|g|g|
+Blue Spruce|T|u|g|s|
+Douglas Fir|T|u|g|g|
+Eastern Red Cedar|T|u|g|g|
+Yoshino Cherry|T|u|g|p|
+Golden Rain Tree|T|u|g|y|
+Windmill Palm|T|up|gp|g|
+Sago Palm|T|up|gp|g|
+Bay Laurel|T|up|gp|g|
+American Holly|T|up|g|r|a
+Silver Dollar Eucalyptus|T|u|g|s|
+Hydrangea (Bigleaf)|S|ph|gp|b|a
+Oakleaf Hydrangea|S|ph|g|w|
+Azalea|S|ph|gp|p|a
+Rhododendron|S|ph|g|m|a
+Camellia|S|ph|gp|p|a
+Gardenia|S|up|gp|w|a
+Boxwood|S|uph|g|g|
+Hybrid Tea Rose|S|u|gp|r|
+Knock Out Rose|S|u|gp|p|
+Lilac|S|u|g|v|
+Forsythia|S|u|g|y|
+Weigela|S|u|g|p|
+Spirea|S|u|g|p|
+Butterfly Bush|S|u|g|v|
+Rose of Sharon|S|u|g|v|
+Tropical Hibiscus|S|u|gp|r|
+Oleander|S|u|gp|p|
+Bottlebrush|S|u|g|r|
+Blueberry|S|u|gp|w|f:b,a
+Raspberry|S|u|g|w|f:r
+Blackberry|S|u|g|w|f:k
+Red Currant|S|up|g|g|f:r
+Gooseberry|S|up|g|g|f:g
+Elderberry|S|up|g|w|f:v
+Juniper|S|u|g|g|
+Yew|S|uph|g|g|
+Inkberry Holly|S|up|g|g|a
+Nandina|S|uph|gp|r|
+Photinia|S|u|g|r|
+Viburnum|S|up|g|w|
+Mock Orange|S|u|g|w|
+Smoke Bush|S|u|g|k|
+Ninebark|S|u|g|k|
+Barberry|S|u|g|k|
+Beautyberry|S|up|g|m|
+Fothergilla|S|up|g|w|a
+Mountain Laurel|S|up|g|p|a
+Pieris|S|ph|g|w|a
+Daphne|S|p|g|p|
+Hebe|S|u|gp|v|
+Lantana|S|u|gph|o|
+Plumbago|S|u|gp|b|
+Pittosporum|S|up|g|g|
+Cotoneaster|S|u|g|g|
+Flowering Quince|S|u|g|o|
+Sunflower|F|u|g|y|
+Zinnia|F|u|gp|o|
+Marigold|F|u|gph|o|
+Petunia|F|u|gph|m|
+Geranium|F|u|gph|r|
+Impatiens|F|ph|gph|p|
+Begonia|F|ph|gph|r|
+Pansy|F|up|gph|v|
+Viola|F|p|gph|v|
+Snapdragon|F|u|gp|p|
+Cosmos|F|u|g|p|
+Black-Eyed Susan|F|u|g|y|
+Purple Coneflower|F|u|g|m|
+Shasta Daisy|F|u|g|w|
+Gerbera Daisy|F|u|gp|o|
+Dahlia|F|u|gp|r|
+Daylily|F|up|g|o|
+Peony|F|u|g|p|
+Bearded Iris|F|u|g|v|
+Garden Phlox|F|u|g|p|
+Salvia|F|u|g|v|
+Verbena|F|u|gph|v|
+Lobelia|F|up|gph|b|
+Sweet Alyssum|F|up|gph|w|
+Nasturtium|F|u|gph|o|
+Cleome|F|u|g|p|
+Delphinium|F|u|g|b|
+Foxglove|F|p|g|m|
+Hollyhock|F|u|g|p|
+Lupine|F|u|g|b|
+Bee Balm|F|up|g|r|
+Yarrow|F|u|g|y|
+Catmint|F|u|g|v|
+Coreopsis|F|u|g|y|
+Blanket Flower|F|u|g|r|
+Hellebore|F|ph|g|k|
+Columbine|F|p|g|v|
+Bleeding Heart|F|ph|g|p|
+Astilbe|F|ph|g|p|
+Primrose|F|ph|gp|y|
+Forget-Me-Not|F|ph|g|b|
+Lily of the Valley|F|ph|g|w|
+Coral Bells|F|ph|gp|c|
+Cyclamen|F|ph|p|p|
+African Violet|F|h|p|v|
+Poinsettia|F|p|p|r|
+Chrysanthemum|F|u|gp|o|
+New England Aster|F|u|g|v|
+Goldenrod|F|u|g|y|
+Joe-Pye Weed|F|up|g|m|
+Cardinal Flower|F|ph|g|r|
+Calendula|F|u|gp|o|
+Cornflower|F|u|g|b|
+California Poppy|F|u|g|o|
+Angelonia|F|u|gp|v|
+Periwinkle|F|u|gp|p|
+Portulaca|F|u|gph|m|
+Celosia|F|u|g|r|
+Statice|F|u|g|v|
+Larkspur|F|u|g|b|
+Baby's Breath|F|u|g|w|
+Fuchsia|F|ph|ph|m|
+Calibrachoa|F|u|ph|m|
+Bacopa|F|up|ph|w|
+Torenia|F|ph|gph|v|
+Sweet William|F|u|g|r|
+Carnation|F|u|gp|p|
+Stock|F|u|g|v|
+Japanese Anemone|F|up|g|b|
+Ranunculus|F|u|gp|o|
+Moth Orchid|F|ph|ph|p|
+Bird of Paradise|F|u|gp|o|
+Canna|F|u|gp|r|
+Lisianthus|F|u|gp|v|
+Scabiosa|F|u|g|b|
+Agapanthus|F|u|gp|b|
+`;
+const RAW2 = `
+Basil|H|u|gp|g|
+Mint|H|up|gp|g|
+Spearmint|H|up|gp|g|
+Rosemary|H|u|gp|b|
+Thyme|H|u|gp|p|
+Oregano|H|u|gp|v|
+Sage|H|u|gp|v|
+Parsley|H|up|gp|g|
+Cilantro|H|up|gp|w|
+Dill|H|u|g|y|
+Chives|H|up|gp|v|
+Lavender|H|u|gp|v|
+Lemon Balm|H|up|gp|g|
+Tarragon|H|u|gp|g|
+Chamomile|H|u|g|w|
+Fennel|H|u|g|y|
+Catnip|H|up|gp|v|
+Lemongrass|H|u|gp|g|
+Marjoram|H|u|gp|w|
+Borage|H|u|g|b|
+Stevia|H|u|gp|w|
+Summer Savory|H|u|gp|p|
+Lovage|H|up|g|y|
+Sorrel|H|up|gp|g|
+Tomato|V|u|gph|r|f:r
+Cherry Tomato|V|u|gph|r|f:r
+Bell Pepper|V|u|gp|w|f:r
+Jalapeno|V|u|gp|w|f:g
+Habanero|V|u|gp|w|f:o
+Cucumber|V|u|gp|y|f:g
+Zucchini|V|u|g|y|f:g
+Pumpkin|V|u|g|y|f:o
+Butternut Squash|V|u|g|y|f:a
+Eggplant|V|u|gp|v|f:v
+Okra|V|u|g|y|f:g
+Sweet Corn|V|u|g|y|f:y
+Green Bean|V|u|gp|w|f:g
+Snap Pea|V|up|gp|w|f:g
+Cantaloupe|V|u|g|y|f:a
+Watermelon|V|u|g|y|f:g
+Strawberry|V|up|gph|w|f:r
+Lettuce|V|ph|gp|g|
+Spinach|V|ph|gp|g|
+Kale|V|up|gp|g|
+Cabbage|V|u|g|g|
+Broccoli|V|u|g|g|
+Cauliflower|V|u|g|w|
+Carrot|V|up|gp|o|
+Radish|V|up|gp|p|
+Beet|V|up|gp|r|
+Potato|V|u|gp|w|
+Sweet Potato|V|u|gp|v|
+Onion|V|u|gp|w|
+Garlic|V|u|gp|w|
+Leek|V|u|g|g|
+Swiss Chard|V|up|gp|g|
+Arugula|V|up|gp|g|
+Turnip|V|up|g|p|
+Celery|V|up|g|g|
+Asparagus|V|u|g|g|
+Rhubarb|V|up|g|r|
+Artichoke|V|u|g|v|
+Grape|N|u|g|g|f:v
+Kiwi|N|u|g|w|f:n
+Passion Fruit|N|u|gp|v|f:v
+Wisteria|N|u|g|v|
+Clematis|N|up|gp|v|
+Climbing Rose|N|u|g|r|
+Honeysuckle|N|up|g|y|
+Morning Glory|N|u|gp|b|
+Sweet Pea|N|u|gp|p|
+Trumpet Vine|N|u|g|o|
+Star Jasmine|N|up|gp|w|
+Bougainvillea|N|u|gp|m|
+English Ivy|N|uph|gph|g|
+Virginia Creeper|N|uph|g|r|
+Boston Ivy|N|up|g|r|
+Moonflower|N|u|gp|w|
+Black-Eyed Susan Vine|N|u|gph|o|
+Mandevilla|N|u|gp|p|
+Hops|N|u|g|g|
+Aloe Vera|C|up|gp|o|
+Jade Plant|C|up|p|p|
+Echeveria|C|u|gp|c|
+Hens and Chicks|C|u|gp|r|
+Autumn Joy Sedum|C|u|g|p|
+Agave|C|u|gp|s|
+Yucca|C|u|gp|w|
+Prickly Pear|C|u|g|y|f:r
+Barrel Cactus|C|u|gp|y|
+Christmas Cactus|C|ph|ph|r|
+Snake Plant|C|uph|p|g|
+Haworthia|C|p|p|g|
+String of Pearls|C|up|ph|w|
+Burro's Tail|C|up|ph|g|
+Kalanchoe|C|u|gp|o|
+Ice Plant|C|u|gp|m|
+Hosta|G|ph|gp|v|
+Boston Fern|G|ph|ph|g|
+Maidenhair Fern|G|h|gp|g|
+Ostrich Fern|G|ph|g|g|
+Japanese Painted Fern|G|ph|g|s|
+Lady Fern|G|ph|g|g|
+Sword Fern|G|ph|gp|g|
+Switchgrass|G|u|g|n|
+Fountain Grass|G|u|gp|k|
+Blue Fescue|G|u|gp|s|
+Pampas Grass|G|u|g|w|
+Maiden Grass|G|u|g|w|
+Little Bluestem|G|u|g|s|
+Mondo Grass|G|uph|g|g|
+Liriope|G|uph|g|v|
+Lamb's Ear|G|u|g|s|
+Dusty Miller|G|u|gp|s|
+Coleus|G|ph|gph|k|
+Caladium|G|ph|gp|r|
+Elephant Ear|G|ph|gp|g|
+Spider Plant|G|ph|ph|w|
+Pothos|G|ph|ph|g|
+Sweet Potato Vine|G|u|gph|l|
+Clumping Bamboo|G|up|gp|g|
+Papyrus|G|u|gp|g|
+Hakone Grass|G|ph|gp|y|
+Tulip|U|u|gp|r|
+Daffodil|U|up|gp|y|
+Crocus|U|u|gp|v|
+Hyacinth|U|u|gp|b|
+Snowdrop|U|ph|g|w|
+Ornamental Allium|U|u|g|v|
+Gladiolus|U|u|gp|o|
+Asiatic Lily|U|up|gp|o|
+Stargazer Lily|U|up|gp|p|
+Dutch Iris|U|u|gp|b|
+Freesia|U|u|gp|y|
+Amaryllis|U|up|p|r|
+Grape Hyacinth|U|u|gp|b|
+Fritillaria|U|up|g|o|
+Calla Lily|U|up|gp|w|
+Siberian Squill|U|up|g|b|
+`;
+
+// Plants that clash. Tags per plant, and which tags dislike each other.
+const TAGS_RAW = `
+Black Walnut=walnut
+Tomato=tomato,sens
+Cherry Tomato=tomato,sens
+Potato=potato,sens
+Apple=sens
+Blueberry=sens
+Azalea=sens
+Rhododendron=sens
+Lilac=sens
+Peony=sens
+Hydrangea (Bigleaf)=sens
+Oakleaf Hydrangea=sens
+Fennel=fennel
+Green Bean=fenfoe,legume
+Snap Pea=fenfoe,legume
+Bell Pepper=fenfoe
+Jalapeno=fenfoe
+Habanero=fenfoe
+Cilantro=fenfoe
+Mint=mint,crowder
+Spearmint=mint,crowder
+Parsley=mintfoe
+Chamomile=mintfoe
+Lettuce=mintfoe
+Basil=mintfoe
+Sunflower=sunflower
+Sweet Potato=sunfoe
+Onion=allium
+Garlic=allium
+Leek=allium
+Chives=allium
+Cabbage=brassica
+Broccoli=brassica
+Cauliflower=brassica
+Kale=brassica
+Strawberry=strawberry
+Sweet Corn=corn
+Cucumber=cucumber
+Sage=sage
+Carrot=carrot
+Dill=dill
+Clumping Bamboo=crowder
+English Ivy=crowder
+Trumpet Vine=crowder
+Viola=small
+Pansy=small
+Forget-Me-Not=small
+Sweet Alyssum=small
+Lobelia=small
+Primrose=small
+Snowdrop=small
+Crocus=small
+Lily of the Valley=small
+Silver Dollar Eucalyptus=euc
+`;
+const CONFLICTS = [
+  ['walnut','sens'], ['fennel','fenfoe'], ['mint','mintfoe'], ['sunflower','potato'], ['sunflower','legume'],
+  ['sunflower','sunfoe'], ['allium','legume'], ['brassica','tomato'], ['brassica','strawberry'],
+  ['tomato','potato'], ['tomato','corn'], ['cucumber','sage'], ['cucumber','potato'], ['carrot','dill'],
+  ['crowder','small'], ['euc','small']
+];
+const CLASH_WHY = {
+  'walnut|sens':'Black Walnut roots release juglone, which poisons sensitive neighbors.',
+  'fennel|fenfoe':'Fennel stunts beans, peas, peppers, tomatoes and cilantro.',
+  'mint|mintfoe':'Mint spreads fast and smothers tender neighbors.',
+  'sunflower|potato':'Sunflowers release growth inhibitors that hurt potatoes.',
+  'sunflower|legume':'Sunflowers shade and inhibit beans and peas.',
+  'sunflower|sunfoe':'Sunflowers inhibit sweet potatoes.',
+  'allium|legume':'Onions and garlic stunt beans and peas.',
+  'brassica|tomato':'Cabbage relatives and tomatoes compete hard for nutrients.',
+  'brassica|strawberry':'Cabbage relatives stunt strawberries.',
+  'tomato|potato':'Tomatoes and potatoes pass blight back and forth.',
+  'tomato|corn':'Corn and tomatoes share the same fruitworm.',
+  'cucumber|sage':'Sage stunts cucumbers.',
+  'cucumber|potato':'Potatoes make cucumbers prone to blight.',
+  'carrot|dill':'Dill cross-pollinates with carrots and ruins the roots.',
+  'crowder|small':'Spreaders swallow small, delicate plants.',
+  'euc|small':'Eucalyptus leaves poison the ground under them.'
+};
+/* ===== Core data ===== */
+const COL={r:'#D6403A',o:'#F08A24',y:'#F2C230',p:'#EE7FB0',m:'#B8398F',v:'#7C4DBD',b:'#4B7FD6',w:'#F7F4EE',g:'#5BAA5E',l:'#A8CF4B',s:'#A9BFB5',k:'#7A2038',c:'#F26B5A',a:'#F7A66B',n:'#A5622E'};
+const hexOf=c=>c&&c[0]==='#'?c:(COL[c]||COL.g);
+const LEAF='#4E9A57',LEAF2='#3A7D47',LEAFD='#2E6A3C',LEAFL='#6DB56A';
+function mixHex(a,b,t){const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);const m=(s)=>Math.round(((pa>>s)&255)*(1-t)+((pb>>s)&255)*t);return '#'+[16,8,0].map(s=>m(s).toString(16).padStart(2,'0')).join('')}
+const shade=(h,t)=>t>=0?mixHex(h,'#FFFFFF',t):mixHex(h,'#000000',-t);
+
+const CATS={T:'Tree',S:'Shrub',F:'Flower',H:'Herb',V:'Vegetable',N:'Vine',C:'Succulent',G:'Foliage & grass',U:'Bulb'};
+const GROW={T:0.0042,S:0.0062,F:0.0125,H:0.0125,V:0.0145,N:0.0105,C:0.0045,G:0.0085,U:0.011};
+const FERTS={
+  bloom:{name:'Bloom Booster',blurb:'High phosphorus for flowers and bulbs',col:'#D9467E'},
+  leaf:{name:'Leafy Green',blurb:'Nitrogen for herbs, ferns and grasses',col:'#3F9A55'},
+  harvest:{name:'Harvest Feed',blurb:'Potassium for vegetables and fruit',col:'#E08A1E'},
+  tree:{name:'Tree & Shrub Spikes',blurb:'Slow release for woody plants',col:'#8A6038'},
+  acid:{name:'Acid Lover',blurb:'Low pH for azaleas, blueberries and friends',col:'#7C4DBD'},
+  succ:{name:'Cactus Mix',blurb:'Light, low nitrogen for succulents',col:'#2F9AA6'}
+};
+const SUNN={u:'Full sun',p:'Part sun',h:'Shade'};
+const SITEN={g:'Ground',p:'Pot',h:'Hanging basket'};
+const SITEL={g:'In the ground',p:'Pot',h:'Hanging basket'};
+function sunText(s){return s.split('').map(c=>SUNN[c]).join(' or ')}
+function siteText(s){return s.split('').map(c=>SITEN[c]).join(', ')}
+
+const PLANTS=[];const PBY={};
+const TAGMAP={};
+TAGS_RAW.trim().split('\n').forEach(l=>{const [n,t]=l.split('=');TAGMAP[n]=t.split(',')});
+(RAW1+RAW2).split('\n').map(l=>l.trim()).filter(Boolean).forEach((l,i)=>{
+  const [name,cat,sun,site,col,fl='']=l.split('|');
+  const flags=fl.split(',').filter(Boolean);const f=flags.find(x=>x.startsWith('f:'));
+  const acid=flags.includes('a');const fruit=!!f;
+  let fert='bloom';
+  if(acid)fert='acid';else if(fruit||cat==='V')fert='harvest';
+  else if(cat==='T'||cat==='S')fert='tree';else if(cat==='H'||cat==='G')fert='leaf';
+  else if(cat==='C')fert='succ';else fert='bloom';
+  const d={id:'p'+i,name,cat,sun,site,col,fruit,fc:fruit?f.slice(2):null,fert,g:GROW[cat],tags:TAGMAP[name]||[],hybrid:false};
+  PLANTS.push(d);PBY[d.id]=d;
+});
+const BASE_COUNT=PLANTS.length;
+function defOf(id){return PBY[id]}
+
+function tagsClash(ta,tb){
+  for(const [x,y] of CONFLICTS){
+    if((ta.includes(x)&&tb.includes(y))||(ta.includes(y)&&tb.includes(x)))return CLASH_WHY[x+'|'+y]||'They do not get along.';
+  }
+  return null;
+}
+
+/* ===== Yard layout (viewBox 1000 x 720) ===== */
+const SLOTS=[];
+const ZONES={};
+function zone(key,name,kind,sun,pts,r){
+  ZONES[key]={key,name,kind,sun};
+  pts.forEach((p,i)=>SLOTS.push({id:SLOTS.length,zone:key,name:name,kind,sun,x:p[0],y:p[1],n:i+1,r:r||22}));
+}
+const COLS4=[590,700,810,920],ROWS4=[395,480,565,650];
+ROWS4.forEach((y,ri)=>COLS4.forEach((x,ci)=>{}));
+zone('plotA','Open Plot','g','u',ROWS4.flatMap(y=>[0,1,2].map(c=>[COLS4[c],y])),30);
+zone('plotB','Open Plot, shady edge','g','p',ROWS4.map(y=>[COLS4[3],y]),30);
+zone('lawn','Lawn Plot','g','u',[[385,380],[465,380],[385,460],[465,460],[385,540],[465,540]],28);
+zone('oak','Oak Tree Garden','g','h',[[55,415],[135,415],[55,495],[135,495]],22);
+zone('bedB','Patio Flower Bed','g','p',[490,538,586,634].map(x=>[x,142]),20);
+zone('poolN','North Pool Garden','g','u',[775,830,885].map(x=>[x,55]),18);
+zone('poolS','South Pool Garden','g','p',[775,830,885].map(x=>[x,235]),18);
+zone('poolW','Cabana Pool Garden','g','h',[[707,125],[707,180]],18);
+zone('poolE','East Pool Garden','g','u',[[972,125],[972,180]],18);
+zone('patioH','Patio Hanging Basket','h','p',[90,190,290,390].map(x=>[x,205]),18);
+zone('patioP','Patio Pot','p','p',[70,150,230,310,390].map(x=>[x,272]),20);
+zone('poolP','Pool Pot','p','u',[730,800,870,940].map(x=>[x,296]),20);
+// the three hanging baskets in shade get a mix of light: make 2 of the patio baskets shaded
+SLOTS.filter(s=>s.zone==='patioH').forEach((s,i)=>{if(i<2)s.sun='h'});
+SLOTS.filter(s=>s.zone==='patioP').forEach((s,i)=>{if(i===0||i===4)s.sun='h';if(i===2)s.sun='u'});
+const FOE_RADIUS=125;
+function slotDist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function slotLabel(s){return s.name+' '+s.n}
+
+/* ===== Plant artwork (drawn at origin, growing upward) ===== */
+function bloomSVG(x,y,r,c){
+  const hc=hexOf(c);let s='';
+  for(let i=0;i<6;i++){const a=i*Math.PI/3;s+=`<circle cx="${(x+Math.cos(a)*r*.9).toFixed(1)}" cy="${(y+Math.sin(a)*r*.9).toFixed(1)}" r="${(r*.62).toFixed(1)}" fill="${hc}"/>`}
+  return s+`<circle cx="${x}" cy="${y}" r="${(r*.45).toFixed(1)}" fill="${c==='y'||c==='o'?'#8A5A2B':'#F2C94C'}"/>`;
+}
+function leafPair(x,y,rot,rx,ry,c1,c2){return `<ellipse cx="${x-3.5}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${-rot} ${x-3.5} ${y})" fill="${c1}"/><ellipse cx="${x+3.5}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${rot} ${x+3.5} ${y})" fill="${c2}"/>`}
+function canopyCols(c){
+  const h=hexOf(c);
+  if('royk'.includes(c)&&c!=='')return [shade(h,-.15),h,shade(h,.2),shade(h,.1)];
+  if(c==='n')return [LEAFD,LEAF2,LEAF,shade('#A5622E',.1)];
+  if(c==='s')return ['#6E9A8E','#8FB0A6','#A9C7BC','#7FA79B'];
+  return [LEAF2,LEAF,LEAFL,'#5BAA5E'];
+}
+const BLOOMY='wpmvbc';
+const isBloomy=c=>c[0]==='#'||BLOOMY.includes(c);
+function artSeedling(){return `<path d="M0 0 C0 -6 0 -9 0 -12" stroke="${LEAF2}" stroke-width="2" fill="none"/>${leafPair(0,-12,28,5,2.6,LEAF,LEAFL)}`}
+function artT(d){
+  const c=d.col,cc=canopyCols(c);let s='';
+  if(/Pine|Spruce|Fir|Cedar/.test(d.name)){
+    const g=c==='s'?['#5E8C86','#7FA9A1','#9CC2B8']:[LEAFD,LEAF2,LEAF];
+    s+=`<rect x="-3" y="-14" width="6" height="14" rx="2" fill="#7A5230"/>`;
+    s+=`<path d="M-20 -12 L0 -38 L20 -12Z" fill="${g[0]}"/><path d="M-16 -28 L0 -52 L16 -28Z" fill="${g[1]}"/><path d="M-11 -44 L0 -64 L11 -44Z" fill="${g[2]}"/>`;return s;
+  }
+  if(/Palm/.test(d.name)){
+    s+=`<path d="M-2 0 Q-5 -20 0 -34 L3 -34 Q2 -18 3 0Z" fill="#8A6038"/>`;
+    for(let i=0;i<7;i++){const a=-160+i*320/6;s+=`<path d="M0 -34 Q${(Math.cos(a*Math.PI/180)*14).toFixed(1)} ${(-34+Math.sin(a*Math.PI/180)*14-8).toFixed(1)} ${(Math.cos(a*Math.PI/180)*26).toFixed(1)} ${(-34+Math.sin(a*Math.PI/180)*20).toFixed(1)}" stroke="${i%2?LEAF:LEAF2}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`}
+    return s;
+  }
+  s+=`<rect x="-3" y="-24" width="6" height="24" rx="2" fill="#7A5230"/>`;
+  s+=`<circle cx="-12" cy="-32" r="13" fill="${cc[0]}"/><circle cx="12" cy="-32" r="13" fill="${cc[0]}"/><circle cx="0" cy="-42" r="16" fill="${cc[1]}"/><circle cx="-8" cy="-50" r="10" fill="${cc[2]}"/><circle cx="9" cy="-48" r="9" fill="${cc[3]}"/>`;
+  if(isBloomy(c)){[[-14,-34],[10,-30],[0,-46],[-6,-54],[12,-46],[-18,-26],[16,-38],[2,-34]].forEach(([x,y])=>{s+=`<circle cx="${x}" cy="${y}" r="3" fill="${hexOf(c)}"/>`})}
+  else if(c==='g'&&/Willow/.test(d.name)){[-22,-12,0,12,22].forEach(x=>{s+=`<path d="M${x} -38 q${x>0?3:-3} 14 ${x>0?1:-1} 28" stroke="${LEAFL}" stroke-width="2.4" fill="none"/>`})}
+  return s;
+}
+function artS(d){
+  const c=d.col,cc=canopyCols(c);let s='';
+  if(/Rose|Hibiscus|Azalea|Camellia|Gardenia/.test(d.name)||true){}
+  s+=`<circle cx="-12" cy="-11" r="12" fill="${cc[0]}"/><circle cx="12" cy="-11" r="12" fill="${cc[0]}"/><circle cx="0" cy="-16" r="15" fill="${cc[1]}"/><circle cx="-6" cy="-24" r="9" fill="${cc[2]}"/><circle cx="8" cy="-24" r="9" fill="${cc[3]}"/>`;
+  if(isBloomy(c)||c==='o'&&/Lantana|Quince/.test(d.name)){[[-14,-14],[10,-8],[0,-20],[-5,-27],[12,-22],[-18,-6],[16,-14],[3,-10]].forEach(([x,y])=>{s+=`<circle cx="${x}" cy="${y}" r="3.2" fill="${hexOf(c)}"/>`})}
+  else if(c==='y'){[[-14,-14],[0,-22],[12,-14],[-6,-8],[8,-26]].forEach(([x,y])=>{s+=`<circle cx="${x}" cy="${y}" r="3" fill="${COL.y}"/>`})}
+  if(d.fruit&&!isBloomy(c)){}
+  return s;
+}
+function artF(d){
+  const c=d.col;let s='';
+  [[-9,-22,.8],[0,-34,1],[9,-26,.9]].forEach(([x,h,k])=>{
+    s+=`<path d="M${x*.4} 0 Q${x*.7} ${h/2} ${x} ${h}" stroke="${LEAF2}" stroke-width="2" fill="none"/>`;
+    s+=`<ellipse cx="${x*.7-4}" cy="${h/2+3}" rx="5" ry="2.2" transform="rotate(-30 ${x*.7-4} ${h/2+3})" fill="${LEAF}"/>`;
+    s+=bloomSVG(x,h,5.8*k,c);
+  });
+  return s;
+}
+function artH(d){
+  const c=d.col;let s='';
+  [[-9,-20],[0,-28],[9,-22],[-3,-14],[5,-12]].forEach(([x,h],i)=>{
+    s+=`<path d="M0 0 Q${x*.5} ${h/2} ${x} ${h}" stroke="${LEAF2}" stroke-width="1.8" fill="none"/>`;
+    for(let j=0;j<3;j++){const yy=h*(.4+j*.28),xx=x*(.4+j*.3);s+=leafPair(+xx.toFixed(1),+yy.toFixed(1),35,4,2,i%2?LEAF:LEAFL,LEAF)}
+    if(c!=='g')s+=`<circle cx="${x}" cy="${h-2}" r="2.4" fill="${hexOf(c)}"/>`;
+  });
+  return s;
+}
+function artV(d){
+  let s='';
+  if(d.name==='Sweet Corn'){
+    s+=`<path d="M0 0 L0 -42" stroke="${LEAF2}" stroke-width="3.5"/>`;[-1,1].forEach(k=>{[-12,-24,-34].forEach(y=>{s+=`<path d="M0 ${y} Q${14*k} ${y-8} ${20*k} ${y+6}" stroke="${LEAF}" stroke-width="3" fill="none" stroke-linecap="round"/>`})});s+=`<path d="M-3 -44 L0 -52 L3 -44Z" fill="${COL.y}"/>`;return s;
+  }
+  if(/Tomato|Pepper|Jalapeno|Habanero|Bean|Pea|Cucumber|Eggplant|Okra/.test(d.name)){
+    s+=`<path d="M-12 0 L-12 -34 M12 0 L12 -34" stroke="#9A7B50" stroke-width="2"/><path d="M-12 -30 L12 -30 M-12 -16 L12 -16" stroke="#9A7B50" stroke-width="1.4"/>`;
+  }
+  s+=`<path d="M0 0 Q-2 -14 0 -30" stroke="${LEAF2}" stroke-width="2.6" fill="none"/>`;
+  [[-10,-8,-35],[10,-12,35],[-9,-20,-30],[9,-24,30],[0,-31,0]].forEach(([x,y,r],i)=>{s+=`<ellipse cx="${x}" cy="${y}" rx="8" ry="4" transform="rotate(${r} ${x} ${y})" fill="${i%2?LEAF:LEAFL}"/>`});
+  if(!d.fruit&&d.col!=='g'&&d.col!=='w'){s+=`<ellipse cx="0" cy="1" rx="5" ry="2.4" fill="${hexOf(d.col)}"/>`}
+  return s;
+}
+function artU(d){
+  const c=hexOf(d.col);let s='';
+  [-9,9].forEach(k=>{s+=`<path d="M${k*.6} 0 Q${k*1.4} -14 ${k*.4} -24" stroke="${LEAF}" stroke-width="3.4" fill="none" stroke-linecap="round"/>`});
+  [[-8,-24,.8],[0,-36,1],[8,-28,.9]].forEach(([x,h,k])=>{
+    s+=`<path d="M${x*.3} 0 L${x} ${h}" stroke="${LEAF2}" stroke-width="2.2"/>`;
+    s+=`<path d="M${x-6*k} ${h+2} Q${x-7*k} ${h-9*k} ${x} ${h-11*k} Q${x+7*k} ${h-9*k} ${x+6*k} ${h+2} Q${x} ${h+6*k} ${x-6*k} ${h+2}Z" fill="${c}"/><path d="M${x-2*k} ${h-9*k} L${x} ${h-3*k} L${x+2*k} ${h-9*k}" stroke="${shade(c,-.2)}" stroke-width="1" fill="none"/>`;
+  });
+  return s;
+}
+function artN(d){
+  const c=d.col;let s='';
+  s+=`<path d="M-14 0 L-14 -46 M14 0 L14 -46 M-14 -44 L14 -44 M-14 -30 L14 -30 M-14 -16 L14 -16" stroke="#9A7B50" stroke-width="2"/>`;
+  s+=`<path d="M0 0 C-16 -10 14 -18 -10 -28 C-16 -32 10 -38 4 -46" stroke="${LEAF2}" stroke-width="2.4" fill="none"/>`;
+  [[-8,-14],[10,-20],[-10,-30],[6,-36],[0,-44]].forEach(([x,y],i)=>{s+=`<ellipse cx="${x}" cy="${y}" rx="5" ry="2.6" transform="rotate(${i%2?30:-30} ${x} ${y})" fill="${/Creeper|Boston/.test(d.name)?hexOf(c):i%2?LEAF:LEAFL}"/>`});
+  if(isBloomy(c)||'roy'.includes(c)&&!/Creeper|Boston/.test(d.name)||d.fruit){[[-6,-22],[8,-30],[-10,-38],[4,-12]].forEach(([x,y])=>{s+=bloomSVG(x,y,3.4,c)})}
+  return s;
+}
+function artC(d){
+  const c=hexOf(d.col);let s='';
+  if(/Cactus|Prickly/.test(d.name)){
+    const g='#5E9E7A';
+    s+=`<rect x="-7" y="-34" width="14" height="34" rx="7" fill="${g}"/><path d="M-7 -20 q-10 0 -10 -10 v-8" stroke="${g}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M7 -14 q10 0 10 -10 v-6" stroke="${g}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+    s+=`<circle cx="0" cy="-36" r="3.4" fill="${c}"/>`;return s;
+  }
+  if(/String|Burro|Christmas/.test(d.name)){
+    for(let i=-3;i<=3;i++){s+=`<path d="M${i*3} -6 q${i*4} 10 ${i*5} 26" stroke="#6FAF8E" stroke-width="2" fill="none"/>`;[8,16,22].forEach(y=>{s+=`<circle cx="${(i*3+i*1.3*y/8).toFixed(1)}" cy="${y}" r="2.2" fill="${/Pearls/.test(d.name)?'#8FC9A6':'#6FAF8E'}"/>`})}
+    return s+`<ellipse cx="0" cy="-6" rx="13" ry="5" fill="#5E9E7A"/>`+(/Christmas/.test(d.name)?`<circle cx="-8" cy="14" r="3" fill="${c}"/><circle cx="6" cy="20" r="3" fill="${c}"/>`:'');
+  }
+  if(/Snake|Yucca|Agave|Aloe/.test(d.name)){
+    const g=/Agave/.test(d.name)?'#79A9A0':'#5E9E7A';
+    [-16,-8,0,8,16].forEach((a,i)=>{s+=`<path d="M0 0 Q${a*.7} -18 ${a} ${-34+Math.abs(a)*.6}" stroke="${i%2?g:shade(g,-.12)}" stroke-width="7" fill="none" stroke-linecap="round"/>`});
+    return s;
+  }
+  const g=mixHex('#5E9E7A',c,/Echeveria|Hens|Ice|Autumn/.test(d.name)?.35:.0);
+  for(let i=0;i<8;i++){const a=i*45;s+=`<ellipse cx="0" cy="-9" rx="4" ry="11" transform="rotate(${a} 0 -9) translate(0 -8)" fill="${i%2?shade(g,.1):g}"/>`}
+  s+=`<circle cx="0" cy="-9" r="4.5" fill="${shade(g,.2)}"/>`;
+  if(/Jade|Kalanchoe/.test(d.name))s+=`<circle cx="-3" cy="-14" r="2" fill="${c}"/><circle cx="4" cy="-12" r="2" fill="${c}"/>`;
+  return s;
+}
+function artG(d){
+  const c=d.col;let s='';
+  if(/Fern/.test(d.name)){
+    [-34,-16,0,16,34].forEach(a=>{
+      const x=Math.sin(a*Math.PI/180)*26,y=-Math.cos(a*Math.PI/180)*22;
+      s+=`<path d="M0 0 Q${x*.4} ${y*.9} ${x} ${y}" stroke="${/Painted/.test(d.name)?'#9AB7B0':LEAF2}" stroke-width="2" fill="none"/>`;
+      for(let j=1;j<=4;j++){const px=x*j/5,py=y*(j/5)*.95;s+=leafPair(+px.toFixed(1),+py.toFixed(1),55,4,1.6,/Painted/.test(d.name)?'#B6CCC6':LEAFL,LEAF)}
+    });return s;
+  }
+  if(/Hosta|Caladium|Elephant|Coleus|Pothos|Spider|Lamb|Dusty|Vine|Papyrus|Hakone/.test(d.name)&&!/Hakone/.test(d.name)){
+    const lc=c==='k'||c==='r'?hexOf(c):c==='s'?'#A9C7BC':c==='l'?'#A8CF4B':c==='v'?'#6E9A8E':c==='w'?LEAFL:LEAF;
+    [[-12,-8,-40,9,6],[12,-8,40,9,6],[-6,-16,-20,10,7],[7,-17,22,10,7],[0,-24,0,9,8]].forEach(([x,y,r,rx,ry],i)=>{s+=`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${x} ${y})" fill="${i%2?lc:shade(lc,-.12)}"/>`});
+    if(/Hosta/.test(d.name))s+=`<path d="M0 -20 L0 -40" stroke="${LEAF2}" stroke-width="2"/><circle cx="0" cy="-42" r="3" fill="${hexOf(c)}"/><circle cx="-3" cy="-37" r="2.4" fill="${hexOf(c)}"/>`;
+    return s;
+  }
+  const bl=c==='s'?['#8FB0A6','#A9C7BC']:c==='k'?['#7A3A48','#9A4C5C']:c==='n'?['#B58A55','#C9A06B']:[LEAF,LEAFL];
+  for(let i=0;i<11;i++){const x=-18+i*3.6,tip=-26-((i*7)%5)*3;s+=`<path d="M${x*.3} 0 Q${x*.7} ${tip*.6} ${x*1.1} ${tip}" stroke="${bl[i%2]}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`}
+  if(c==='w'||c==='k'||c==='n'||c==='v'){[[-9,-30],[0,-36],[9,-31]].forEach(([x,y])=>{s+=`<ellipse cx="${x}" cy="${y}" rx="3" ry="6" fill="${hexOf(c==='w'?'w':c)}"/>`})}
+  return s;
+}
+const ARTS={T:artT,S:artS,F:artF,H:artH,V:artV,U:artU,N:artN,C:artC,G:artG};
+const FRUITPOS={T:[[-16,-30],[12,-34],[0,-46],[18,-26],[-6,-26]],S:[[-12,-12],[10,-10],[0,-20],[14,-20]],default:[[-9,-8],[8,-12],[0,-20],[-4,-30]]};
+function fruitSVG(d,p){
+  if(!d.fruit||!p.fr||p.fr.s===0)return '';
+  const pos=FRUITPOS[d.cat]||FRUITPOS.default;
+  const fc=hexOf(d.fc);let s='';
+  pos.forEach(([x,y],i)=>{
+    if(p.fr.s===1)s+=`<circle cx="${x}" cy="${y}" r="${(2+Math.min(p.fr.t/12,2)).toFixed(1)}" fill="#7DBE6A"/>`;
+    else if(p.fr.s===2)s+=`<circle cx="${x}" cy="${y}" r="4.6" fill="${fc}" stroke="#fff" stroke-width="1.4"/><circle cx="${x-1.3}" cy="${y-1.4}" r="1.1" fill="#fff" opacity=".7"/>`;
+    else s+=`<circle cx="${x}" cy="${y}" r="4" fill="#6B4A2E" stroke="#3E2A18" stroke-width="1"/>`;
+  });
+  return s;
+}
+function deadSVG(){return `<path d="M0 0 L-2 -16 M-2 -16 L-9 -24 M-2 -16 L5 -26 M0 -8 L8 -14" stroke="#7A6248" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="-9" cy="-24" r="2" fill="#8C7660"/><circle cx="5" cy="-26" r="2" fill="#8C7660"/>`}
+function hybridFlourish(d){
+  if(!d.hybrid)return '';
+  const c2=hexOf(d.col2);
+  return `<circle cx="-12" cy="-34" r="2.6" fill="${c2}"/><circle cx="13" cy="-26" r="2.6" fill="${c2}"/><circle cx="2" cy="-48" r="2.6" fill="${c2}"/><path d="M16 -44 l1.6 3.6 3.6 1.6 -3.6 1.6 -1.6 3.6 -1.6 -3.6 -3.6 -1.6 3.6 -1.6z" fill="#F2C230"/>`;
+}
+function plantArt(d,p){
+  if(p.dead)return `<g transform="scale(1)">${deadSVG()}</g>`;
+  const sc=0.5+Math.min(p.size,1.45)*0.72;
+  const wilt=!p.happy&&p.water<20;
+  let inner=p.size<0.2?artSeedling():(ARTS[d.cat]||artF)(d);
+  if(p.size>=0.2)inner+=hybridFlourish(d);
+  inner+=p.size>=0.2?fruitSVG(d,p):'';
+  return `<g transform="scale(${sc.toFixed(2)})${wilt?' rotate(-4)':''}" ${wilt?'opacity=".72"':''}>${inner}</g>`;
+}
+/* ===== Game state & rules ===== */
+const SAVE_KEY='beths-beautiful-garden-v1';
+const TICK_MS=1500,DAY_TICKS=24,RIPE_LIFE=26;
+let S=null;
+function newState(){
+  return {layout:3,score:0,tick:0,speed:1,paused:false,slots:{},hybrids:[],crosses:{},discovered:[],log:[],rain:0,gh:{a:null,b:null},sel:null,stats:{planted:0,died:0,harvested:0,rotted:0,hybrids:0}};
+}
+const LEGACY=[['plotA',12],['plotB',4],['lawn',6],['oak',4],['dog',4],['mag',4],['bedA',4],['bedB',4],['bedC',4],['poolN',3],['poolS',3],['poolW',2],['poolE',2],['patioH',4],['poolH',3],['patioP',5],['poolP',4]];
+const LAYOUT2=[['plotA',12],['plotB',4],['lawn',6],['oak',4],['bedB',4],['poolN',3],['poolS',3],['poolW',2],['poolE',2],['patioH',4],['poolH',3],['patioP',5],['poolP',4]];
+function legacyMap(list){const m={};let i=0;list.forEach(([z,n])=>{for(let k=1;k<=n;k++){const sl=SLOTS.find(x=>x.zone===z&&x.n===k);m[i++]=sl?sl.id:null}});return m}
+function loadState(){
+  try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;const o=JSON.parse(raw);if(!o||typeof o.score!=='number'||!o.slots)return null;
+    const base=newState();const st=Object.assign(base,o);st.stats=Object.assign(base.stats,o.stats||{});
+    if(!o.layout||o.layout<3){const m=legacyMap((!o.layout||o.layout<2)?LEGACY:LAYOUT2),ns={};Object.keys(st.slots).forEach(k=>{if(m[k]!=null)ns[m[k]]=st.slots[k]});st.slots=ns;st.sel=(st.sel!=null&&m[st.sel]!=null)?m[st.sel]:null;st.layout=3}
+    (st.hybrids||[]).forEach(h=>{PLANTS.push(h);PBY[h.id]=h});
+    return st;}catch(e){return null}
+}
+let saveTimer=0;
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function slotById(id){return SLOTS[id]}
+function plantAt(id){return S.slots[id]||null}
+function rnd(a,b){return a+Math.random()*(b-a)}
+
+/* ----- scoring, log, effects ----- */
+const fx={float:()=>{},toast:()=>{},changed:()=>{},thump:()=>{}};
+function logEvent(msg,tone){S.log.unshift({d:Math.floor(S.tick/DAY_TICKS)+1,msg,tone:tone||''});if(S.log.length>80)S.log.length=80}
+function pts(n,msg,slot,tone){
+  if(n===0&&!msg)return;
+  S.score+=n;
+  if(msg)logEvent((n?(n>0?'+':'')+n+' ':'')+msg,tone||(n<0?'bad':n>0?'good':''));
+  if(slot&&n)fx.float(slot,n);
+}
+function die(slot,p,why,penalty){
+  if(p.dead)return;
+  p.dead=true;p.why=why;p.fr={s:0,t:0,cd:0};S.stats.died++;
+  const d=defOf(p.pid);
+  pts(-(penalty||20),d.name+' died ('+why+')',slot,'bad');
+  fx.toast(d.name+' died: '+why+'.','bad');
+}
+
+/* ----- planting ----- */
+function neighborsOf(slot){
+  return SLOTS.filter(o=>o.id!==slot.id&&S.slots[o.id]&&!S.slots[o.id].dead&&slotDist(slot,o)<=FOE_RADIUS);
+}
+function clashesFor(slot,d){
+  const out=[];
+  neighborsOf(slot).forEach(o=>{const nd=defOf(S.slots[o.id].pid);const why=tagsClash(d.tags,nd.tags);if(why)out.push({slot:o,def:nd,why})});
+  return out;
+}
+function fitInfo(slot,d){
+  return {sun:d.sun.includes(slot.sun),site:d.site.includes(slot.kind)};
+}
+function plantSeed(slotId,defId){
+  const slot=slotById(slotId),d=defOf(defId);
+  if(!slot||!d)return false;
+  const cur=plantAt(slotId);
+  if(cur&&!cur.dead){fx.toast('That spot is taken.','bad');return false}
+  const fit=fitInfo(slot,d);
+  if(!fit.site){fx.toast(d.name+' cannot grow '+SITEL[slot.kind].toLowerCase()+'.','bad');return false}
+  S.slots[slotId]={pid:d.id,size:0.1,water:70,fert:35,health:100,hap:0,happy:true,fr:{s:0,t:0,cd:0},og:0,dead:false,why:''};
+  S.stats.planted++;
+  const first=!S.discovered.includes(d.id);
+  if(first&&!d.hybrid)S.discovered.push(d.id);
+  const base=fit.sun?6:2;
+  pts(base+(first?4:0),'Planted '+d.name+(first?' (new to your garden!)':'')+(fit.sun?'':' in the wrong light'),slot);
+  if(!fit.sun)fx.toast(d.name+' wants '+sunText(d.sun).toLowerCase()+'. It will struggle here.','warn');
+  // clashes
+  const clashes=clashesFor(slot,d);
+  for(const c of clashes){
+    const loser=Math.random()<0.5?'new':'old';
+    if(loser==='new'){
+      const np=S.slots[slotId];
+      die(slot,np,'clashed with '+c.def.name,15);
+      fx.toast(d.name+' and '+c.def.name+' do not get along. '+d.name+' did not survive. '+c.why,'bad');
+      break;
+    }else{
+      const op=S.slots[c.slot.id];
+      die(c.slot,op,'clashed with '+d.name,15);
+      fx.toast(d.name+' and '+c.def.name+' do not get along. '+c.def.name+' did not survive. '+c.why,'bad');
+    }
+  }
+  fx.thump(slot,'plant');
+  fx.changed();save();return true;
+}
+
+/* ----- care actions ----- */
+function waterPlant(slotId){
+  const slot=slotById(slotId),p=plantAt(slotId);if(!p)return;
+  const d=defOf(p.pid);
+  if(p.dead){fx.toast('Nothing left to water here.','warn');return}
+  if(p.water>=85){
+    pts(-1,'Overwatered '+d.name,slot);p.health=Math.max(1,p.health-(d.cat==='C'?9:4));
+    fx.toast(d.name+' is already soaked.','warn');
+  }else{
+    pts(p.water<40?3:2,'Watered '+d.name,slot);p.water=100;
+  }
+  fx.thump(slot,'water');fx.changed();
+}
+function feedPlant(slotId,type){
+  const slot=slotById(slotId),p=plantAt(slotId);if(!p||p.dead)return;
+  const d=defOf(p.pid);
+  if(d.fert===type){
+    if(p.fert>65){pts(-3,'Over-fertilized '+d.name,slot);p.health=Math.max(1,p.health-15);fx.toast('Too much food burned the roots a little.','warn')}
+    else{const low=p.fert<30;p.fert=100;pts(low?5:4,'Fed '+d.name+' with '+FERTS[type].name,slot)}
+  }else{
+    pts(-5,'Wrong fertilizer for '+d.name,slot);p.health=Math.max(1,p.health-25);
+    fx.toast(d.name+' needs '+FERTS[d.fert].name+', not '+FERTS[type].name+'.','bad');
+  }
+  fx.thump(slot,'feed');fx.changed();
+}
+function trimPlant(slotId){
+  const slot=slotById(slotId),p=plantAt(slotId);if(!p||p.dead)return;
+  const d=defOf(p.pid);
+  if(p.size<0.6){pts(-2,'Trimmed '+d.name+' too early',slot);p.size=Math.max(0.15,p.size-0.08);fx.toast('That was too soon. Wait until it fills out.','warn')}
+  else if(p.size<0.75){p.size-=0.05;fx.toast(d.name+' is not overgrown yet. A light snip only.','warn')}
+  else if(p.size<=1.0){pts(4,'Trimmed '+d.name,slot);p.size=0.55}
+  else{pts(2,'Rescued overgrown '+d.name,slot);p.size=0.55;p.og=0}
+  fx.thump(slot,'trim');fx.changed();
+}
+function pickFruit(slotId){
+  const slot=slotById(slotId),p=plantAt(slotId);if(!p||p.dead)return;
+  const d=defOf(p.pid);
+  if(!d.fruit){fx.toast(d.name+' does not bear fruit.','warn');return}
+  if(p.fr.s===2){pts(10,'Picked and ate '+d.name+' fruit. Yum!',slot);S.stats.harvested++;p.fr={s:0,t:0,cd:8}}
+  else if(p.fr.s===3){p.fr={s:0,t:0,cd:12};logEvent('Cleared rotten fruit from '+d.name);fx.toast('Cleared the rotten fruit.','warn')}
+  else fx.toast('Not ripe yet.','warn');
+  fx.thump(slot,'pick');fx.changed();
+}
+function removePlant(slotId){
+  const slot=slotById(slotId),p=plantAt(slotId);if(!p)return;
+  const d=defOf(p.pid);
+  if(!p.dead)pts(-3,'Dug up '+d.name,slot);else logEvent('Cleared the remains of '+d.name);
+  delete S.slots[slotId];fx.changed();save();
+}
+
+/* ----- the clock ----- */
+function tickPlant(slot,p){
+  if(p.dead)return;
+  const d=defOf(p.pid);
+  const thirst=d.cat==='C'?0.35:(/Tomato|Cucumber|Zucchini|Watermelon|Cantaloupe|Hydrangea|Impatiens|Fern/.test(d.name)?1.3:1);
+  const rate=(slot.kind==='p'?2.0:slot.kind==='h'?2.6:1.1)*(slot.sun==='u'?1.25:slot.sun==='h'?0.75:1)*thirst;
+  p.water=Math.max(0,p.water-rate);
+  p.fert=Math.max(0,p.fert-1);
+  const fit=fitInfo(slot,d);
+  let stress=0;
+  if(!fit.sun)stress+=1.4;
+  if(!fit.site)stress+=2;
+  if(p.water<15)stress+=p.water<=0?2.4:1.2;
+  if(p.fert<=0)stress+=0.35;
+  if(stress>0)p.health-=stress;else p.health=Math.min(100,p.health+0.8);
+  p.happy=stress===0&&p.health>=60;
+  if(p.health<=0){die(slot,p,!fit.sun?'wrong light':p.water<=0?'dried out':'went hungry');return}
+  p.size=Math.min(1.45,p.size+d.g*(p.happy?1:0.2)*(p.fert>0?1:0.5));
+  if(p.size>1.0){
+    if(!p.og){p.og=1;pts(-6,d.name+' is overgrown!',slot,'bad');fx.toast(d.name+' is overgrown. Trim it back.','bad')}
+    else if((S.tick%10)===0)pts(-2,d.name+' is still overgrown',slot,'bad');
+  }
+  if(p.happy){p.hap++;if(p.hap%6===0)pts(p.size>=0.5?2:1,'',slot)}
+  if(d.fruit){
+    const f=p.fr,ft=d.cat==='T'?30:18;
+    if(f.s===0){if(p.size>=0.5&&p.happy){if(f.cd>0)f.cd--;else{f.s=1;f.t=0}}}
+    else if(f.s===1){if(p.happy)f.t++;if(f.t>=ft){f.s=2;f.t=0;logEvent(d.name+' fruit is ripe!','good');fx.toast(d.name+' fruit is ripe. Pick it soon.','good')}}
+    else if(f.s===2){f.t++;if(f.t>=RIPE_LIFE){f.s=3;f.t=0;S.stats.rotted++;pts(-8,d.name+' fruit rotted on the plant',slot,'bad')}}
+  }
+}
+function gameTick(){
+  S.tick++;
+  if(S.rain>0){S.rain--;SLOTS.forEach(sl=>{const p=S.slots[sl.id];if(p&&!p.dead&&sl.kind==='g')p.water=Math.min(100,p.water+7)});}
+  else if(Math.random()<1/70){S.rain=6;logEvent('A rain shower is watering the ground plants.');fx.toast('It started to rain. Ground plants get a drink.','good')}
+  SLOTS.forEach(sl=>{const p=S.slots[sl.id];if(p)tickPlant(sl,p)});
+  if(S.tick%DAY_TICKS===0)logEvent('Day '+(Math.floor(S.tick/DAY_TICKS)+1)+' begins.');
+  if(S.tick%8===0)save();
+  fx.changed();
+}
+
+/* ----- attention helper ----- */
+function needsOf(slot,p){
+  const d=defOf(p.pid),out=[];
+  if(p.dead)return [{k:'dead',w:1}];
+  if(p.fr.s===2)out.push({k:'pick',w:p.fr.t>RIPE_LIFE-8?100:60});
+  if(p.fr.s===3)out.push({k:'rot',w:20});
+  if(p.size>1.0)out.push({k:'trim',w:70});
+  if(p.water<25)out.push({k:'water',w:90-p.water});
+  if(p.fert<=0)out.push({k:'feed',w:30});
+  return out;
+}
+function nextTask(from){
+  let best=null,bw=0;
+  SLOTS.forEach(sl=>{const p=S.slots[sl.id];if(!p||p.dead)return;needsOf(sl,p).forEach(n=>{let w=n.w;if(sl.id===from)w-=40;if(w>bw){bw=w;best=sl}})});
+  return best;
+}
+function counts(){
+  let alive=0,happy=0,water=0,ripe=0,trim=0,dead=0;
+  SLOTS.forEach(sl=>{const p=S.slots[sl.id];if(!p)return;if(p.dead){dead++;return}alive++;if(p.happy)happy++;if(p.water<25)water++;if(p.fr&&p.fr.s===2)ripe++;if(p.size>0.95)trim++});
+  return {alive,happy,water,ripe,trim,dead};
+}
+
+/* ----- greenhouse: hybrids ----- */
+const FUNNY=['Wigglebottom','Snickerdoodle','McFluffernutter','Sir Sniffsalot','Bumblepants','Noodlewhistle','Flapdoodle','Fuzzywump','Captain Crunchy','Lady Lumpkin','Pickle Pants','Whoopsie Daisy','Professor Puffball','Dr. Dingleflop','Grandma Gigglesworth','Baron von Bloom','Lord Leafsalot','Madame Moustache','Mr. Mulchbottom','Princess Petalpants','Waddle-Doodle','Sassy Sprout','Count Chuckles','Nanny Nibblenose'];
+function hashStr(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}return ()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return((h^=h>>>16)>>>0)/4294967296}}
+const WOODY='TSN';
+function compat(a,b){
+  if(a.cat===b.cat)return 0.92;
+  const wa=WOODY.includes(a.cat),wb=WOODY.includes(b.cat);
+  if(a.cat==='C'||b.cat==='C')return(a.cat==='C'&&b.cat==='C')?0.9:0.28;
+  if(wa===wb)return 0.7;
+  return 0.5;
+}
+function wordsOf(n){return n.replace(/\(.*?\)/g,'').trim().split(/\s+/).map(w=>w.replace(/[^A-Za-z]/g,'')).filter(Boolean)}
+function headOf(n){const w=wordsOf(n)[0];return w.slice(0,'aeiouy'.includes(w[2]&&w[2].toLowerCase())?4:3)}
+function tailOf(n){const ws=wordsOf(n);const w=ws[ws.length-1].toLowerCase();return w.slice(-3)}
+function joinName(a,b){a=a.toLowerCase();if(a.slice(-1)===b[0])a=a.slice(0,-1);return a+b}
+function crossSeeds(aId,bId){
+  const A=defOf(aId),B=defOf(bId);
+  if(!A||!B)return {err:'Pick two seeds first.'};
+  if(aId===bId)return {err:'Pick two different seeds to cross.'};
+  const [x,y]=[aId,bId].sort();const key=x+'+'+y;
+  const known=S.crosses[key];
+  if(known===0)return {again:true,fail:true,msg:'You already tried this mix. The seeds will not take.'};
+  if(known)return {again:true,hybrid:defOf(known),msg:'You already created this hybrid.'};
+  const rng=hashStr(key);
+  const roll=rng();
+  const A2=defOf(x),B2=defOf(y);
+  if(roll>compat(A2,B2)){S.crosses[key]=0;logEvent('Mixed '+A2.name+' and '+B2.name+'. The seeds did not take.');save();return {fail:true,msg:A2.name+' and '+B2.name+' are too different. The seeds did not take.'}}
+  const id='h'+(S.hybrids.length+1)+'_'+Math.floor(rng()*1e6);
+  let name=joinName(headOf(A2.name),tailOf(B2.name));name=name[0].toUpperCase()+name.slice(1);
+  let full=name+' '+FUNNY[Math.floor(rng()*FUNNY.length)];
+  if(PLANTS.some(p=>p.name===full))full+=' II';
+  const cat=rng()<0.5?A2.cat:B2.cat;
+  const sun=[...new Set((A2.sun+B2.sun).split(''))].join('');
+  let site=[...A2.site].filter(c=>B2.site.includes(c)).join('');if(!site)site=rng()<0.5?A2.site:B2.site;
+  const fertPick=rng()<0.5?A2:B2;
+  const fruitP=A2.fruit?A2:B2.fruit?B2:null;
+  const ca=hexOf(A2.col),cb=hexOf(B2.col);
+  const g=((A2.g+B2.g)/2)*(0.85+rng()*0.4);
+  const h={id,name:full,cat,sun,site,col:mixHex(ca,cb,0.5),col2:cb===ca?'#F2C230':cb,fruit:!!fruitP,fc:fruitP?fruitP.fc:null,fert:fertPick.fert,g,tags:[...new Set([...A2.tags,...B2.tags])],hybrid:true,parents:[A2.name,B2.name]};
+  PLANTS.push(h);PBY[id]=h;S.hybrids.push(h);S.crosses[key]=id;S.stats.hybrids++;
+  const bonus=20+(A2.cat!==B2.cat?10:0);
+  pts(bonus,'Propagated a hybrid: '+full,null,'good');
+  save();
+  return {hybrid:h,bonus};
+}
+/* ===== UI: map, HUD, effects ===== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const NS='http://www.w3.org/2000/svg';
+const RANKS=[[0,'Seedling'],[100,'Weekend gardener'],[300,'Green thumb'],[700,'Master gardener'],[1500,'Garden legend'],[3000,'Queen of the Garden']];
+const CHAIN={patioH:27,poolH:8};
+const slotEls={},slotKeys={};
+function miniArt(d,w,h){
+  const p={size:0.95,happy:true,water:80,dead:false,fr:{s:d.fruit?2:0,t:0}};
+  return `<svg viewBox="-34 -70 68 78" width="${w||44}" height="${h||50}" aria-hidden="true">${plantArt(d,p)}</svg>`;
+}
+function buildSlots(){
+  const layer=$('slotsLayer');layer.innerHTML='';
+  [...SLOTS].sort((a,b)=>a.y-b.y).forEach(sl=>{
+    const g=document.createElementNS(NS,'g');
+    g.setAttribute('class','slot');g.setAttribute('tabindex','0');g.setAttribute('role','button');
+    g.setAttribute('aria-label',slotLabel(sl)+', '+SUNN[sl.sun]+', '+SITEL[sl.kind]);
+    g.setAttribute('transform','translate('+sl.x+','+sl.y+')');g.dataset.id=sl.id;
+    const r=sl.r;let base='',oy=8;
+    if(sl.kind==='g')base=`<ellipse class="soil" cx="0" cy="6" rx="${r}" ry="${(r*.62).toFixed(1)}"/>`;
+    else if(sl.kind==='p'){oy=-1;base=`<path class="potfill" d="M-14 2H14L10 20H-10Z"/><rect class="potd" x="-17" y="-3" width="34" height="7" rx="2.5"/>`}
+    else{oy=2;const L=CHAIN[sl.zone]||20;base=`<path d="M-11 4L0 ${-L}L11 4" stroke="#6B5A44" stroke-width="1.6" fill="none"/><circle cx="0" cy="${-L}" r="2.4" fill="#6B5A44"/><path class="potfill" d="M-15 2Q0 22 15 2Z"/>`}
+    const ringY=sl.kind==='g'?6:8;
+    g.innerHTML=`${base}<ellipse class="ring" cx="0" cy="${ringY}" rx="${r+5}" ry="${sl.kind==='g'?(r+5)*.72:r+5}"/><path class="plus" d="M-6 ${ringY}H6M0 ${ringY-6}V${ringY+6}"/><g class="pl" transform="translate(0,${oy})"><g class="plwrap"></g></g><g class="pips"></g><circle class="hit" r="${r+6}" cy="${ringY}"/>`;
+    layer.appendChild(g);slotEls[sl.id]=g;
+  });
+}
+function pipsFor(d,p){
+  const out=[];
+  if(p.dead)return out;
+  if(p.water<30)out.push(['#2878B8','W']);
+  if(p.fert<=0)out.push(['#C98A1B','F']);
+  if(p.size>1.0)out.push(['#C0392B','T']);
+  if(!p.happy&&p.health<60)out.push(['#C2315B','!']);
+  return out;
+}
+function renderSlot(sl){
+  const g=slotEls[sl.id],p=S.slots[sl.id];
+  const plw=g.querySelector('.plwrap'),pips=g.querySelector('.pips'),plus=g.querySelector('.plus');
+  const sel=S.sel===sl.id;g.classList.toggle('sel',sel);
+  let key='e';
+  if(p){key=[p.pid,Math.round(p.size*25),p.dead,p.fr.s,p.fr.s===1?Math.floor(p.fr.t/5):0,p.happy,p.water<20,p.water<30,p.fert<=0,p.health<60].join('|')}
+  if(slotKeys[sl.id]===key)return;
+  slotKeys[sl.id]=key;
+  if(!p){plw.innerHTML='';pips.innerHTML='';plus.style.display='';return}
+  plus.style.display='none';
+  const d=defOf(p.pid);
+  plw.innerHTML=plantArt(d,p);
+  const ps=pipsFor(d,p);const r=sl.r;
+  pips.innerHTML=ps.map((pp,i)=>`<g class="pip" transform="translate(${r-2},${-26+i*16})"><circle r="7.5" fill="${pp[0]}"/><text y="3.2">${pp[1]}</text></g>`).join('');
+}
+function rankOf(score){let r=RANKS[0][1];RANKS.forEach(x=>{if(score>=x[0])r=x[1]});return r}
+function todOf(t){const m=t%DAY_TICKS;return m<8?'morning':m<16?'afternoon':'evening'}
+function renderHUD(){
+  const c=counts();
+  $('score').textContent=S.score;
+  $('rank').textContent=rankOf(S.score);
+  $('day').textContent=Math.floor(S.tick/DAY_TICKS)+1;
+  const tod=todOf(S.tick);$('tod').textContent=tod;
+  $('yard').dataset.tod=tod==='evening'?'eve':'day';
+  $('weather').textContent=S.rain>0?'Raining':'Dry and bright';
+  $('yard').classList.toggle('raining',S.rain>0);
+  $('cHappy').textContent=c.happy;$('cAlive').textContent=c.alive+' planted';
+  const disc=S.discovered.length;$('cDisc').textContent=disc;$('cDiscOf').textContent='of '+BASE_COUNT+(S.hybrids.length?' + '+S.hybrids.length+' hybrid'+(S.hybrids.length>1?'s':''):'');
+  const chips=[];
+  if(c.water)chips.push(`<span class="chip water">${c.water} thirsty</span>`);
+  if(c.ripe)chips.push(`<span class="chip good">${c.ripe} ready to pick</span>`);
+  if(c.trim)chips.push(`<span class="chip warn">${c.trim} need trimming</span>`);
+  if(c.dead)chips.push(`<span class="chip bad">${c.dead} to clear</span>`);
+  if(armedSeed)chips.unshift(`<span class="chip good">Planting ${esc(defOf(armedSeed).name)}. Tap an empty spot.</span><button class="btn sm" data-armoff="1">Done</button>`);
+  else if(!chips.length)chips.push(`<span class="chip">${c.alive?'Everything is calm':'Tap a spot to start planting'}</span>`);
+  $('needs').innerHTML=chips.join('');
+  $('bPause').textContent=S.paused?'Resume':'Pause';
+  $('bSpeed').textContent=S.speed+'× speed';
+}
+let rafPending=false;
+function renderAll(){
+  rafPending=false;
+  SLOTS.forEach(renderSlot);
+  renderHUD();
+  if(typeof renderPanel==='function')renderPanel(false);
+  if(typeof renderTabLive==='function')renderTabLive();
+}
+fx.changed=()=>{if(!rafPending){rafPending=true;requestAnimationFrame(renderAll)}};
+fx.float=(sl,n)=>{
+  const t=document.createElementNS(NS,'text');
+  t.setAttribute('class','pop '+(n>0?'pos':'neg'));
+  t.setAttribute('x',sl.x+(Math.random()*16-8));t.setAttribute('y',sl.y-36);
+  t.textContent=(n>0?'+':'')+n;
+  $('floatLayer').appendChild(t);setTimeout(()=>t.remove(),1500);
+};
+let toastTimer=0;
+fx.toast=(msg,tone)=>{
+  const t=$('toast');t.textContent=msg;t.className='toast show '+(tone==='bad'?'bad':tone==='good'?'good':'');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>{t.classList.remove('show')},3600);
+};
+let bethTimer=0;
+function bethGo(sl){
+  const b=$('beth');
+  const tx=Math.max(34,Math.min(966,sl.x+(sl.x>520?-36:36)));
+  const ty=Math.max(90,Math.min(712,sl.y+34));
+  b.style.transform='translate('+tx+'px,'+ty+'px)';
+  b.classList.add('walk');clearTimeout(bethTimer);bethTimer=setTimeout(()=>b.classList.remove('walk'),820);
+}
+fx.thump=(sl,kind)=>{
+  const g=slotEls[sl.id];
+  if(g){g.classList.remove('thump');void g.getBoundingClientRect();g.classList.add('thump');setTimeout(()=>g.classList.remove('thump'),480)}
+  const b=$('beth');b.classList.remove('act');void b.getBoundingClientRect();b.classList.add('act');setTimeout(()=>b.classList.remove('act'),480);
+};
+function initRain(){
+  const r=$('rain');let s='';
+  for(let i=0;i<70;i++){const x=Math.random()*1000,y=Math.random()*720;s+=`<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${(x-6).toFixed(0)}" y2="${(y+16).toFixed(0)}" style="animation-delay:-${(Math.random()*0.7).toFixed(2)}s"/>`}
+  r.innerHTML=s;
+}
+/* ===== UI: panel, pickers, tabs, init ===== */
+let panelKey='',armDig=-1,armTimer=0,armedSeed=null;
+function statusFor(sl,p){
+  const d=defOf(p.pid),fit=fitInfo(sl,d);
+  if(p.dead)return ['bad','Gone: '+p.why+'.'];
+  if(!fit.sun)return ['bad','Wrong light. It wants '+sunText(d.sun).toLowerCase()+'.'];
+  if(p.water<25)return ['warn','Thirsty. Give it a drink.'];
+  if(p.fert<=0)return ['warn','Hungry. It needs '+FERTS[d.fert].name+'.'];
+  if(p.size>1.0)return ['bad','Overgrown. Trim it back.'];
+  if(p.fr&&p.fr.s===2)return ['good','Fruit is ripe. Pick it before it rots.'];
+  if(p.fr&&p.fr.s===3)return ['bad','Fruit rotted. Clear it off.'];
+  if(p.happy)return ['good',p.size<0.25?'Settling in.':'Happy and growing.'];
+  return ['warn','Not thriving yet.'];
+}
+function panelSig(sl,p){
+  if(!sl)return 'none';
+  if(!p)return sl.id+'|empty';
+  const d=defOf(p.pid);
+  return [sl.id,p.pid,p.dead,p.fr.s,p.size<0.6?0:p.size<0.75?1:p.size<=1?2:3,p.water>=85,p.happy,p.water<25,p.fert<=0,fitInfo(sl,d).sun,armDig===sl.id].join('|');
+}
+function meter(id,label,cls,val,max){return `<div class="meter"><span>${label}</span><div class="bar ${cls}" id="mb-${id}"><i style="width:${Math.max(0,Math.min(100,val/max*100)).toFixed(0)}%"></i>${id==='size'?'<span class="win" title="Best time to trim"></span>':''}</div><b id="mv-${id}">${Math.round(val)}</b></div>`}
+function updateMeters(p){
+  const set=(id,val,max)=>{const b=$('mb-'+id);if(!b)return;b.firstElementChild.style.width=Math.max(0,Math.min(100,val/max*100)).toFixed(0)+'%';const v=$('mv-'+id);if(v)v.textContent=Math.round(id==='size'?val/1.45*100:val)};
+  set('water',p.water,100);set('health',p.health,100);set('food',p.fert,100);set('size',p.size,1.45);
+  if(p.fr&&$('mb-fruit'))set('fruit',p.fr.s===1?Math.min(100,p.fr.t/(defOf(p.pid).cat==='T'?30:18)*100):p.fr.s===2?100-p.fr.t/RIPE_LIFE*100:0,100);
+  const s=$('mb-size');if(s)s.firstElementChild.style.background=p.size>1.0?'var(--bad)':'var(--leaf)';
+}
+function renderPanel(force){
+  const el=$('panel');
+  const sl=S.sel!=null?slotById(S.sel):null,p=sl?plantAt(sl.id):null;
+  const sig=panelSig(sl,p);
+  if(!force&&sig===panelKey){if(p&&!p.dead)updateMeters(p);return}
+  panelKey=sig;
+  if(!sl){
+    el.innerHTML=`<h2>Welcome, Beth</h2><p class="say">Tap a bed, pot, basket or plot in the yard to see what it needs.</p>
+    <ul class="needs-list"><li><span class="ok">1</span> Plant a seed that fits the light and spot.</li><li><span class="ok">2</span> Water it, then feed it the right food.</li><li><span class="ok">3</span> Pick fruit while it is ripe and trim before it overgrows.</li><li><span class="ok">4</span> Mix seeds in the greenhouse for silly hybrids.</li></ul>
+    <p class="hint">Plants that clash will not both survive. The seed list warns you about neighbors before you plant.</p>
+    <button class="btn primary" data-act="next">Find my next chore</button>`;return;
+  }
+  const chips=`<div class="pmeta"><span class="chip">${SUNN[sl.sun]}</span><span class="chip">${SITEL[sl.kind]}</span></div>`;
+  if(!p){
+    const nb=neighborsOf(sl).map(o=>defOf(S.slots[o.id].pid).name);
+    el.innerHTML=`<h2>${esc(slotLabel(sl))}</h2>${chips}<p class="say">Empty. ${esc(SUNN[sl.sun])} ${sl.kind==='g'?'ground':sl.kind==='p'?'pot':'basket'}, ready for a seed.</p>
+    ${nb.length?`<p class="hint">Growing nearby: ${esc([...new Set(nb)].slice(0,6).join(', '))}</p>`:''}
+    <button class="btn primary" data-act="plant">Plant a seed</button>`;return;
+  }
+  const d=defOf(p.pid);
+  if(p.dead){
+    el.innerHTML=`<h2>${esc(slotLabel(sl))}</h2>${chips}<div class="pcard">${miniArt(d,56,62)}<div><b>${esc(d.name)}</b><div class="hint">${esc(p.why)}</div></div></div><p class="say bad">This one did not make it. Clear the spot to plant again.</p><button class="btn primary" data-act="clear">Clear the spot</button>`;return;
+  }
+  const fit=fitInfo(sl,d),st=statusFor(sl,p);
+  const clash=clashesFor(sl,d);
+  el.innerHTML=`<h2>${esc(slotLabel(sl))}</h2>${chips}
+  <div class="pcard">${miniArt(d,60,66)}<div><b style="font-size:1.05rem">${esc(d.name)}</b><div class="hint">${d.hybrid?'Hybrid of '+esc(d.parents.join(' and ')):CATS[d.cat]}</div></div></div>
+  <p class="say ${st[0]}">${esc(st[1])}</p>
+  <ul class="needs-list">
+    <li><span class="${fit.sun?'ok':'no'}">${fit.sun?'Yes':'No'}</span> Light: ${esc(sunText(d.sun))}</li>
+    <li><span class="${fit.site?'ok':'no'}">${fit.site?'Yes':'No'}</span> Spot: ${esc(siteText(d.site))}</li>
+    <li><span class="ok" style="color:${FERTS[d.fert].col}">Food</span> ${esc(FERTS[d.fert].name)}</li>
+  </ul>
+  <div class="meters">${meter('water','Water','w',p.water,100)}${meter('health','Health','s',p.health,100)}${meter('food','Food','f',p.fert,100)}${meter('size','Size','s',p.size/1.45*100,100)}${d.fruit?meter('fruit','Fruit','fr',0,100):''}</div>
+  <div class="actions">
+    <button class="btn water" data-act="water">Water</button>
+    <button class="btn green" data-act="feed">Feed</button>
+    <button class="btn" data-act="trim">Trim</button>
+    ${d.fruit?`<button class="btn primary" data-act="pick" ${p.fr.s>=2?'':'disabled'}>${p.fr.s===3?'Clear rotten fruit':'Pick fruit'}</button>`:'<button class="btn" disabled>No fruit</button>'}
+    <button class="btn sm danger wide" data-act="dig">${armDig===sl.id?'Tap again to dig it up':'Dig up'}</button>
+  </div>
+  <p class="hint">Trim when the size bar is inside the outlined window. Too early costs points, too late too.</p>`;
+  updateMeters(p);
+}
+$('panel').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  const a=b.dataset.act,id=S.sel;
+  if(a==='next'){gotoNext();return}
+  if(id==null)return;
+  if(a==='plant')openSeedPicker(slotById(id));
+  else if(a==='water')waterPlant(id);
+  else if(a==='feed')openFertPicker(id);
+  else if(a==='trim')trimPlant(id);
+  else if(a==='pick')pickFruit(id);
+  else if(a==='clear'){removePlant(id)}
+  else if(a==='dig'){
+    if(armDig===id){armDig=-1;removePlant(id)}
+    else{armDig=id;clearTimeout(armTimer);armTimer=setTimeout(()=>{armDig=-1;renderPanel(true)},3000);}
+  }
+  renderPanel(true);fx.changed();
+});
+function selectSlot(id){
+  S.sel=id;armDig=-1;const sl=slotById(id);bethGo(sl);
+  if(armedSeed){const cur=plantAt(id);if(!cur||cur.dead)plantSeed(id,armedSeed)}renderPanel(true);fx.changed();
+  if(window.matchMedia('(max-width:920px)').matches)$('panel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function gotoNext(){
+  const sl=nextTask(S.sel);
+  if(!sl){fx.toast('Nothing urgent right now. Nice work.','good');return}
+  selectSlot(sl.id);
+}
+$('slotsLayer').addEventListener('click',e=>{const g=e.target.closest('.slot');if(g)selectSlot(+g.dataset.id)});
+$('slotsLayer').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('.slot');if(g){e.preventDefault();selectSlot(+g.dataset.id)}}});
+$('bNext').addEventListener('click',gotoNext);
+$('ghBuilding').addEventListener('click',()=>showTab('green'));
+$('ghBuilding').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showTab('green')}});
+
+/* ----- modal ----- */
+function openModal(title,sub){$('mTitle').textContent=title;$('mSub').textContent=sub||'';$('modal').hidden=false;document.body.style.overflow='hidden'}
+function closeModal(){$('modal').hidden=true;document.body.style.overflow='';$('mBody').innerHTML=''}
+$('mClose').addEventListener('click',closeModal);
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('modal').hidden)closeModal()});
+
+/* ----- plant list (seed picker and guide share it) ----- */
+const FILTERS=[['all','All'],['T','Trees'],['S','Shrubs'],['F','Flowers'],['H','Herbs'],['V','Veg'],['N','Vines'],['C','Succulents'],['G','Foliage'],['U','Bulbs'],['hyb','Hybrids'],['fruit','Fruiting']];
+function matchFilter(d,f){if(f==='all')return true;if(f==='hyb')return d.hybrid;if(f==='fruit')return d.fruit;return d.cat===f}
+function plantBadges(d,slot){
+  const b=[`<span class="badge">${CATS[d.cat]}</span>`,`<span class="badge">${esc(sunText(d.sun))}</span>`,`<span class="badge">${esc(siteText(d.site))}</span>`,`<span class="badge" style="color:${FERTS[d.fert].col};border-color:currentColor">${FERTS[d.fert].name}</span>`];
+  if(d.fruit)b.push('<span class="badge good">Fruit</span>');
+  if(d.hybrid)b.push('<span class="badge good">Hybrid</span>');
+  if(slot){
+    const fit=fitInfo(slot,d);if(!fit.sun)b.push('<span class="badge warn">Wrong light here</span>');
+    clashesFor(slot,d).slice(0,2).forEach(c=>b.push(`<span class="badge bad">Clashes with ${esc(c.def.name)}</span>`));
+  }
+  return b.join('');
+}
+function mountList(host0,opts){
+  let host=host0;
+  const st={q:'',f:'all',fit:!!opts.slot,shown:60};
+  host.innerHTML='';const root=document.createElement('div');host.appendChild(root);host=root;
+  host.innerHTML=`<div class="tools"><input type="search" id="${opts.id}q" placeholder="Search ${BASE_COUNT}+ plants" aria-label="Search plants">${opts.slot?`<label class="check"><input type="checkbox" id="${opts.id}fit" checked> Only plants that fit here</label>`:''}</div><div class="chips" id="${opts.id}chips"></div><div class="${opts.grid?'pgrid':'list'}" id="${opts.id}list" style="${opts.grid?'margin-top:12px':''}"></div>`;
+  const chips=host.querySelector('#'+opts.id+'chips'),list=host.querySelector('#'+opts.id+'list');
+  chips.innerHTML=FILTERS.map(f=>`<button class="btn sm ${f[0]==='all'?'on':''}" data-f="${f[0]}">${f[1]}</button>`).join('');
+  function draw(){
+    const q=st.q.trim().toLowerCase();
+    let arr=PLANTS.filter(d=>matchFilter(d,st.f)&&(!q||d.name.toLowerCase().includes(q)||CATS[d.cat].toLowerCase().includes(q)));
+    if(opts.slot&&st.fit)arr=arr.filter(d=>{const f=fitInfo(opts.slot,d);return f.site&&(f.sun||d.hybrid)});
+    else if(opts.slot)arr=arr.filter(d=>fitInfo(opts.slot,d).site);
+    arr.sort((a,b)=>(b.hybrid-a.hybrid)||a.name.localeCompare(b.name));
+    const part=arr.slice(0,st.shown);
+    let html=part.map(d=>opts.grid?
+      `<div class="pc">${miniArt(d,52,58)}<div class="t"><b>${esc(d.name)}</b><div class="badges">${plantBadges(d,null)}</div>${d.hybrid?`<div class="m">Parents: ${esc(d.parents.join(' + '))}</div>`:''}</div></div>`:
+      `<div class="row">${miniArt(d,46,52)}<div class="t"><b>${esc(d.name)}</b><div class="badges">${plantBadges(d,opts.slot)}</div></div><button class="btn sm primary" data-pick="${d.id}">${opts.label||'Plant'}</button></div>`).join('');
+    if(!arr.length)html=`<p class="hint" style="padding:12px 2px">${opts.slot&&st.fit?'Nothing matches. Untick "Only plants that fit here" to see everything this spot can hold.':'No plants match that search.'}</p>`;
+    if(arr.length>st.shown)html+=`<div style="padding:10px 0;grid-column:1/-1"><button class="btn sm" data-more="1">Show more (${arr.length-st.shown} left)</button></div>`;
+    list.innerHTML=html;
+  }
+  host.addEventListener('input',e=>{if(e.target.id===opts.id+'q'){st.q=e.target.value;st.shown=60;draw()}});
+  host.addEventListener('change',e=>{if(e.target.id===opts.id+'fit'){st.fit=e.target.checked;st.shown=60;draw()}});
+  host.addEventListener('click',e=>{
+    const f=e.target.closest('[data-f]');
+    if(f){st.f=f.dataset.f;st.shown=60;chips.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on',b===f));draw();return}
+    if(e.target.closest('[data-more]')){st.shown+=80;draw();return}
+    const pk=e.target.closest('[data-pick]');if(pk&&opts.onPick)opts.onPick(pk.dataset.pick);
+  });
+  draw();return {redraw:draw};
+}
+function openSeedPicker(slot){
+  openModal('Choose a seed',slotLabel(slot)+': '+SUNN[slot.sun]+', '+SITEL[slot.kind].toLowerCase());
+  const host=$('mBody');host.style.minHeight='0';
+  mountList(host,{id:'sp',slot,onPick:id=>{closeModal();if(plantSeed(slot.id,id)){renderPanel(true)}}});
+}
+function openFertPicker(slotId){
+  const p=plantAt(slotId);if(!p)return;
+  openModal('Choose a fertilizer','Each kind suits different plants. The wrong one burns.');
+  $('mBody').innerHTML=`<div class="fgrid">${Object.entries(FERTS).map(([k,f])=>`<button class="fert" data-fert="${k}"><i style="background:${f.col}"></i><span><b>${f.name}</b><small>${f.blurb}</small></span></button>`).join('')}</div>`;
+  $('mBody').onclick=e=>{const b=e.target.closest('[data-fert]');if(!b)return;closeModal();$('mBody').onclick=null;feedPlant(slotId,b.dataset.fert);renderPanel(true)};
+}
+
+/* ----- tabs ----- */
+let curTab='garden',guideList=null;
+function showTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t?'true':'false'));
+  ['garden','green','guide','log'].forEach(v=>$('view-'+v).hidden=v!==t);
+  if(t==='green')renderGreenhouse();
+  if(t==='guide'){if(!guideList)guideList=mountList($('gHost'),{id:'gd',grid:true});else guideList.redraw()}
+  if(t==='log')renderLog();
+}
+document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)showTab(b.dataset.tab)});
+function renderTabLive(){if(curTab==='log')renderLog()}
+
+/* ----- greenhouse ----- */
+function seedBtn(id){
+  const d=id?defOf(id):null;
+  return d?`${miniArt(d,52,58)}<span><b>${esc(d.name)}</b><br><small class="hint">${CATS[d.cat]}${d.hybrid?', hybrid':''}. Tap to change.</small></span>`:`<span><b>Choose a seed</b><br><small class="hint">Any plant in the guide works.</small></span>`;
+}
+function renderGreenhouse(){
+  $('ghA').innerHTML=seedBtn(S.gh.a);$('ghB').innerHTML=seedBtn(S.gh.b);
+  $('ghCount').textContent=S.hybrids.length;
+  $('ghList').innerHTML=S.hybrids.length?[...S.hybrids].reverse().map(d=>`<div class="pc">${miniArt(d,52,58)}<div class="t"><b>${esc(d.name)}</b><div class="m">${esc(d.parents.join(' + '))}</div><div class="badges">${plantBadges(d,null)}</div><div><button class="btn sm primary" data-plant-hybrid="${d.id}">Plant it</button></div></div></div>`).join(''):'<p class="hint">No hybrids yet. Try crossing a Tomato with a Rose, or a Lavender with a Basil.</p>';
+}
+function pickParent(which){
+  openModal('Choose parent '+which.toUpperCase(),'Hybrids can be parents too.');
+  mountList($('mBody'),{id:'gh'+which,label:'Use',onPick:id=>{S.gh[which]=id;closeModal();renderGreenhouse();save()}});
+}
+$('ghA').addEventListener('click',()=>pickParent('a'));
+$('ghB').addEventListener('click',()=>pickParent('b'));
+$('ghClear').addEventListener('click',()=>{S.gh={a:null,b:null};$('ghResult').hidden=true;renderGreenhouse();save()});
+$('ghMix').addEventListener('click',()=>{
+  const r=crossSeeds(S.gh.a,S.gh.b),box=$('ghResult');box.hidden=false;
+  if(r.err){box.className='result fail';box.innerHTML=`<b>${esc(r.err)}</b>`}
+  else if(r.fail){box.className='result fail';box.innerHTML=`<b>${esc(r.msg)}</b><span class="hint">Seeds that fail cost nothing. Try other parents. Plants from the same family usually get along best.</span>`;fx.toast('The seeds did not take.','warn')}
+  else{
+    const h=r.hybrid;box.className='result';
+    box.innerHTML=`<div class="pcard">${miniArt(h,64,72)}<div><div class="hybrid-name">${esc(h.name)}</div><div class="hint">${r.again?esc(r.msg):'A brand new hybrid! +'+r.bonus+' propagation points.'}</div></div></div>
+    <div class="badges">${plantBadges(h,null)}</div><p class="hint" style="margin:0">Inherited from ${esc(h.parents[0])} and ${esc(h.parents[1])}.</p><div><button class="btn primary" data-plant-hybrid="${h.id}">Plant it in the garden</button></div>`;
+    if(!r.again)fx.toast('A new hybrid: '+h.name+'!','good');
+  }
+  renderGreenhouse();fx.changed();
+});
+
+function armHybrid(id){
+  const d=defOf(id);if(!d)return;armedSeed=id;showTab('garden');
+  fx.toast('Tap an empty spot to plant '+d.name+'. Keep tapping to plant more.','good');fx.changed();
+}
+$('ghList').addEventListener('click',e=>{const b=e.target.closest('[data-plant-hybrid]');if(b)armHybrid(b.dataset.plantHybrid)});
+$('ghResult').addEventListener('click',e=>{const b=e.target.closest('[data-plant-hybrid]');if(b)armHybrid(b.dataset.plantHybrid)});
+$('needs').addEventListener('click',e=>{if(e.target.closest('[data-armoff]')){armedSeed=null;fx.changed()}});
+
+/* ----- journal ----- */
+function renderLog(){
+  const s=S.stats;
+  $('statChips').innerHTML=[`Planted ${s.planted}`,`Lost ${s.died}`,`Fruit eaten ${s.harvested}`,`Rotted ${s.rotted}`,`Hybrids ${s.hybrids}`].map(t=>`<span class="chip">${t}</span>`).join('');
+  $('logList').innerHTML=S.log.length?S.log.map(l=>`<li><small>Day ${l.d}</small><span class="${l.tone}">${esc(l.msg)}</span></li>`).join(''):'<li><span class="hint">Nothing yet. Plant something!</span></li>';
+}
+
+/* ----- controls & loop ----- */
+$('bPause').addEventListener('click',()=>{S.paused=!S.paused;renderHUD()});
+$('bSpeed').addEventListener('click',()=>{S.speed=S.speed===1?2:1;renderHUD()});
+let resetArm=0;
+$('bReset').addEventListener('click',()=>{
+  const b=$('bReset');
+  if(!resetArm){resetArm=setTimeout(()=>{resetArm=0;b.textContent='New garden'},4000);b.textContent='Tap again to erase everything';return}
+  clearTimeout(resetArm);resetArm=0;b.textContent='New garden';
+  armedSeed=null;PLANTS.splice(BASE_COUNT).forEach(h=>delete PBY[h.id]);
+  try{localStorage.removeItem(SAVE_KEY)}catch(e){}
+  S=newState();Object.keys(slotKeys).forEach(k=>delete slotKeys[k]);guideList=null;$('gHost').innerHTML='';
+  renderPanel(true);renderAll();renderGreenhouse();fx.toast('A fresh, empty yard. Happy planting!','good');
+});
+let loopTimer=0;
+function loop(){
+  if(!S.paused&&!document.hidden)gameTick();
+  loopTimer=setTimeout(loop,TICK_MS/S.speed);
+}
+function init(){
+  S=loadState()||newState();
+  initRain();buildSlots();renderPanel(true);renderAll();
+  const fg=$('fertGrid');fg.innerHTML=Object.values(FERTS).map(f=>`<div class="fert" style="cursor:default"><i style="background:${f.col}"></i><span><b>${f.name}</b><small>${f.blurb}</small></span></div>`).join('');
+  if(!S.score&&!Object.keys(S.slots).length)fx.toast('Tap a spot in the yard to plant your first seed.','good');
+  loopTimer=setTimeout(loop,TICK_MS/S.speed);
+  window.addEventListener('pagehide',save);
+}
+init();
+</script>
+
+</body>
+</html>
